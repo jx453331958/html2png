@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3'
 import path from 'path'
+import { encrypt, decrypt } from './encryption'
 
 const dbPath = path.join(process.cwd(), 'data', 'html2png.db')
 
@@ -72,6 +73,16 @@ function initSchema(db: Database.Database) {
     );
 
     CREATE INDEX IF NOT EXISTS idx_invitation_codes_code ON invitation_codes(code);
+
+    CREATE TABLE IF NOT EXISTS token_blacklist (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      token_hash TEXT UNIQUE NOT NULL,
+      expires_at DATETIME NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_token_blacklist_hash ON token_blacklist(token_hash);
+    CREATE INDEX IF NOT EXISTS idx_token_blacklist_expires ON token_blacklist(expires_at);
   `)
 
   // Add is_admin column if it doesn't exist (for existing databases)
@@ -213,13 +224,15 @@ export function saveConversion(
   fileSize: number
 ): number {
   const db = getDb()
-  // Store first 500 characters of HTML as preview, and full HTML for re-editing
+  // Store first 500 characters of HTML as preview (not encrypted for display)
+  // Encrypt full HTML for secure storage
   const htmlPreview = html.length > 500 ? html.substring(0, 500) + '...' : html
+  const encryptedHtml = encrypt(html)
   const stmt = db.prepare(`
     INSERT INTO conversions (user_id, html_preview, html_content, width, height, dpr, full_page, file_size)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `)
-  const result = stmt.run(userId, htmlPreview, html, width, height, dpr, fullPage ? 1 : 0, fileSize)
+  const result = stmt.run(userId, htmlPreview, encryptedHtml, width, height, dpr, fullPage ? 1 : 0, fileSize)
   return result.lastInsertRowid as number
 }
 
@@ -244,7 +257,13 @@ export function listConversions(userId: number, limit = 50, offset = 0): Convers
     ORDER BY created_at DESC
     LIMIT ? OFFSET ?
   `)
-  return stmt.all(userId, limit, offset) as ConversionInfo[]
+  const results = stmt.all(userId, limit, offset) as ConversionInfo[]
+
+  // Decrypt html_content for each result
+  return results.map(r => ({
+    ...r,
+    html_content: r.html_content ? decrypt(r.html_content) : null,
+  }))
 }
 
 export function getConversionCount(userId: number): number {
@@ -364,5 +383,29 @@ export function useInvitationCode(code: string): boolean {
   const stmt = db.prepare('UPDATE invitation_codes SET used_count = used_count + 1 WHERE code = ?')
   const result = stmt.run(code)
   return result.changes > 0
+}
+
+// Token blacklist functions
+export function addTokenToBlacklist(tokenHash: string, expiresAt: Date): void {
+  const db = getDb()
+  const stmt = db.prepare(`
+    INSERT OR IGNORE INTO token_blacklist (token_hash, expires_at)
+    VALUES (?, ?)
+  `)
+  stmt.run(tokenHash, expiresAt.toISOString())
+}
+
+export function isTokenBlacklisted(tokenHash: string): boolean {
+  const db = getDb()
+  const stmt = db.prepare('SELECT id FROM token_blacklist WHERE token_hash = ?')
+  const result = stmt.get(tokenHash)
+  return !!result
+}
+
+export function cleanupExpiredTokens(): number {
+  const db = getDb()
+  const stmt = db.prepare('DELETE FROM token_blacklist WHERE expires_at < CURRENT_TIMESTAMP')
+  const result = stmt.run()
+  return result.changes
 }
 

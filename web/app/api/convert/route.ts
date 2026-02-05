@@ -2,8 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/auth'
 import { convertHtmlToPng } from '@/lib/converter'
 import { saveConversion } from '@/lib/db'
+import { withRateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimit = withRateLimit(request, rateLimitConfigs.convert)
+  if (!rateLimit.success) {
+    return rateLimit.response
+  }
+
   const user = await getAuthUser(request)
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

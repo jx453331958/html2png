@@ -7,8 +7,15 @@ import {
   useInvitationCode
 } from '@/lib/db'
 import { cookies } from 'next/headers'
+import { withRateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimit = withRateLimit(request, rateLimitConfigs.auth)
+  if (!rateLimit.success) {
+    return rateLimit.response
+  }
+
   try {
     // Check if registration is enabled
     if (!isRegistrationEnabled()) {

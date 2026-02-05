@@ -1,11 +1,20 @@
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
-import { getDb, User } from './db'
+import { getDb, User, addTokenToBlacklist, isTokenBlacklisted, cleanupExpiredTokens } from './db'
 import argon2 from 'argon2'
 import crypto from 'crypto'
 
+// Validate JWT_SECRET in production
+const jwtSecretString = process.env.JWT_SECRET
+if (process.env.NODE_ENV === 'production' && !jwtSecretString) {
+  throw new Error('JWT_SECRET environment variable must be set in production')
+}
+if (process.env.NODE_ENV === 'production' && jwtSecretString && jwtSecretString.length < 32) {
+  throw new Error('JWT_SECRET must be at least 32 characters long')
+}
+
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'default-dev-secret-change-me-in-production'
+  jwtSecretString || 'default-dev-secret-change-me-in-production'
 )
 const KEY_PREFIX = 'h2p_'
 
@@ -30,12 +39,45 @@ export async function createToken(payload: JWTPayload): Promise<string> {
     .sign(JWT_SECRET)
 }
 
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex')
+}
+
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
+    // Check if token is blacklisted
+    const tokenHash = hashToken(token)
+    if (isTokenBlacklisted(tokenHash)) {
+      return null
+    }
+
     const { payload } = await jwtVerify(token, JWT_SECRET)
     return payload as unknown as JWTPayload
   } catch {
     return null
+  }
+}
+
+export async function revokeToken(token: string): Promise<void> {
+  try {
+    // Decode token to get expiration time
+    const { payload } = await jwtVerify(token, JWT_SECRET)
+    const exp = payload.exp
+    if (exp) {
+      const tokenHash = hashToken(token)
+      const expiresAt = new Date(exp * 1000)
+      addTokenToBlacklist(tokenHash, expiresAt)
+    }
+  } catch {
+    // Token is invalid, no need to blacklist
+  }
+}
+
+// Clean up expired tokens periodically (call this on server startup or via cron)
+export function cleanupTokenBlacklist(): void {
+  const cleaned = cleanupExpiredTokens()
+  if (cleaned > 0) {
+    console.log(`Cleaned up ${cleaned} expired tokens from blacklist`)
   }
 }
 

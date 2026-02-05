@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateUser, createToken } from '@/lib/auth'
 import { cookies } from 'next/headers'
+import { withRateLimit, rateLimitConfigs } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimit = withRateLimit(request, rateLimitConfigs.auth)
+  if (!rateLimit.success) {
+    return rateLimit.response
+  }
+
   try {
     const { email, password } = await request.json()
 
