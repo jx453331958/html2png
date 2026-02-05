@@ -4,19 +4,36 @@ import { getDb, User, addTokenToBlacklist, isTokenBlacklisted, cleanupExpiredTok
 import argon2 from 'argon2'
 import crypto from 'crypto'
 
-// Validate JWT_SECRET in production
-const jwtSecretString = process.env.JWT_SECRET
-if (process.env.NODE_ENV === 'production' && !jwtSecretString) {
-  throw new Error('JWT_SECRET environment variable must be set in production')
-}
-if (process.env.NODE_ENV === 'production' && jwtSecretString && jwtSecretString.length < 32) {
-  throw new Error('JWT_SECRET must be at least 32 characters long')
-}
-
-const JWT_SECRET = new TextEncoder().encode(
-  jwtSecretString || 'default-dev-secret-change-me-in-production'
-)
 const KEY_PREFIX = 'h2p_'
+
+// Lazy initialization of JWT secret to avoid build-time errors
+let _jwtSecret: Uint8Array | null = null
+let _secretValidated = false
+
+function getJwtSecret(): Uint8Array {
+  if (_jwtSecret && _secretValidated) {
+    return _jwtSecret
+  }
+
+  const jwtSecretString = process.env.JWT_SECRET
+
+  // Validate JWT_SECRET in production (only at runtime, not build time)
+  if (process.env.NODE_ENV === 'production') {
+    if (!jwtSecretString) {
+      throw new Error('JWT_SECRET environment variable must be set in production')
+    }
+    if (jwtSecretString.length < 32) {
+      throw new Error('JWT_SECRET must be at least 32 characters long')
+    }
+  }
+
+  _jwtSecret = new TextEncoder().encode(
+    jwtSecretString || 'default-dev-secret-change-me-in-production'
+  )
+  _secretValidated = true
+
+  return _jwtSecret
+}
 
 export interface JWTPayload {
   id: number
@@ -36,7 +53,7 @@ export async function createToken(payload: JWTPayload): Promise<string> {
   return new SignJWT(payload as unknown as Record<string, unknown>)
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('7d')
-    .sign(JWT_SECRET)
+    .sign(getJwtSecret())
 }
 
 function hashToken(token: string): string {
@@ -51,7 +68,7 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
       return null
     }
 
-    const { payload } = await jwtVerify(token, JWT_SECRET)
+    const { payload } = await jwtVerify(token, getJwtSecret())
     return payload as unknown as JWTPayload
   } catch {
     return null
@@ -61,7 +78,7 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
 export async function revokeToken(token: string): Promise<void> {
   try {
     // Decode token to get expiration time
-    const { payload } = await jwtVerify(token, JWT_SECRET)
+    const { payload } = await jwtVerify(token, getJwtSecret())
     const exp = payload.exp
     if (exp) {
       const tokenHash = hashToken(token)
