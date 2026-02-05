@@ -44,15 +44,26 @@ FROM mcr.microsoft.com/playwright:v1.58.1-jammy
 
 WORKDIR /app
 
-# Create non-root user
-RUN groupadd -r html2png && useradd -r -g html2png html2png
+# Install build tools to rebuild native modules for this Node version
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy standalone build
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Create data directory
-RUN mkdir -p /app/data && chown -R html2png:html2png /app
+# Copy package.json for npm rebuild
+COPY --from=builder /app/package.json ./
+
+# Rebuild native modules (better-sqlite3, argon2) for current Node version
+RUN npm rebuild better-sqlite3 argon2
+
+# Create non-root user and data directory
+RUN groupadd -r html2png && useradd -r -g html2png html2png \
+    && mkdir -p /app/data && chown -R html2png:html2png /app
 
 # Set environment variables
 ENV NODE_ENV=production
