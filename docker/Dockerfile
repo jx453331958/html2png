@@ -1,7 +1,8 @@
 # Multi-stage build for HTML to PNG converter (Next.js)
+# Use Playwright image as base for all stages to ensure consistent Node version
 
 # Stage 1: Dependencies
-FROM node:20-slim AS deps
+FROM mcr.microsoft.com/playwright:v1.58.1-jammy AS deps
 
 WORKDIR /app
 
@@ -19,16 +20,9 @@ COPY web/package*.json ./
 RUN npm ci
 
 # Stage 2: Builder
-FROM node:20-slim AS builder
+FROM mcr.microsoft.com/playwright:v1.58.1-jammy AS builder
 
 WORKDIR /app
-
-# Install build dependencies for native modules
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
 
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
@@ -44,22 +38,9 @@ FROM mcr.microsoft.com/playwright:v1.58.1-jammy
 
 WORKDIR /app
 
-# Install build tools to rebuild native modules for this Node version
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
-
 # Copy standalone build
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-
-# Copy package.json for npm rebuild
-COPY --from=builder /app/package.json ./
-
-# Rebuild native modules (better-sqlite3, argon2) for current Node version
-RUN npm rebuild better-sqlite3 argon2
 
 # Create non-root user and data directory
 RUN groupadd -r html2png && useradd -r -g html2png html2png \
