@@ -31,10 +31,9 @@ cd html2png
 ```
 
 脚本会引导你完成以下配置：
-1. 设置 JWT 密钥（留空则自动生成）
-2. 创建管理员账号
-3. 配置服务端口
-4. 构建并启动 Docker 容器
+1. 创建管理员账号
+2. 配置服务端口
+3. 构建并启动 Docker 容器
 
 ### 一键更新
 
@@ -57,7 +56,6 @@ cd html2png/docker
 
 # 创建 .env 文件
 cat > .env << EOF
-JWT_SECRET=你的安全随机密钥
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=你的安全密码
 EOF
@@ -80,7 +78,6 @@ npm install
 cat > .env << EOF
 PORT=3000
 HOST=0.0.0.0
-JWT_SECRET=dev-secret-key
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=change-this-password
 EOF
@@ -97,12 +94,12 @@ npm run dev
 |------|--------|------|
 | PORT | 3000 | 服务端口 |
 | HOST | 0.0.0.0 | 服务主机 |
-| JWT_SECRET | - | JWT 签名密钥（必填） |
-| ADMIN_EMAIL | - | 管理员账号邮箱 |
-| ADMIN_PASSWORD | - | 管理员账号密码 |
+| ADMIN_EMAIL | - | 管理员账号邮箱（可选） |
+| ADMIN_PASSWORD | - | 管理员账号密码（可选） |
+| ENCRYPTION_KEY | - | AES-256 密钥，用于加密存储的 HTML 内容（可选） |
 | DATABASE_PATH | ./data/html2png.db | SQLite 数据库路径 |
-| RATE_LIMIT_MAX | 100 | 时间窗口内最大请求数 |
-| RATE_LIMIT_WINDOW_MS | 60000 | 频率限制时间窗口（毫秒） |
+
+> 注意：JWT 密钥会自动生成并存储在数据库中，无需手动配置。
 
 ## API 接口文档
 

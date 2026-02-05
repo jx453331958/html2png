@@ -31,10 +31,9 @@ cd html2png
 ```
 
 The script will guide you through:
-1. Setting up JWT secret (auto-generated if left empty)
-2. Creating admin account credentials
-3. Configuring server port
-4. Building and starting the Docker container
+1. Creating admin account credentials
+2. Configuring server port
+3. Building and starting the Docker container
 
 ### Update to Latest Version
 
@@ -57,7 +56,6 @@ cd html2png/docker
 
 # Create .env file
 cat > .env << EOF
-JWT_SECRET=your-secure-random-secret-key
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=your-secure-password
 EOF
@@ -80,7 +78,6 @@ npm install
 cat > .env << EOF
 PORT=3000
 HOST=0.0.0.0
-JWT_SECRET=dev-secret-key
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=change-this-password
 EOF
@@ -97,12 +94,12 @@ Environment variables:
 |----------|---------|-------------|
 | PORT | 3000 | Server port |
 | HOST | 0.0.0.0 | Server host |
-| JWT_SECRET | - | Secret for JWT signing (required) |
-| ADMIN_EMAIL | - | Admin account email |
-| ADMIN_PASSWORD | - | Admin account password |
+| ADMIN_EMAIL | - | Admin account email (optional) |
+| ADMIN_PASSWORD | - | Admin account password (optional) |
+| ENCRYPTION_KEY | - | AES-256 key for HTML content encryption (optional) |
 | DATABASE_PATH | ./data/html2png.db | SQLite database path |
-| RATE_LIMIT_MAX | 100 | Max requests per window |
-| RATE_LIMIT_WINDOW_MS | 60000 | Rate limit window in ms |
+
+> Note: JWT secret is automatically generated and stored in the database. No manual configuration required.
 
 ## API Reference
 
