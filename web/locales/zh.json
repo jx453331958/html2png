@@ -58,7 +58,13 @@
     "preview": "预览",
     "noPreview": "预览将显示在这里",
     "download": "下载 PNG",
-    "loginRequired": "请登录后使用转换功能"
+    "loginRequired": "请登录后使用转换功能",
+    "history": "最近转换",
+    "historyTotal": "条记录",
+    "clickToEdit": "点击加载并编辑",
+    "delete": "删除",
+    "viewMore": "加载更多",
+    "confirmDeleteHistory": "确定要删除这条记录吗？"
   },
   "dashboard": {
     "title": "控制台",
@@ -78,15 +84,7 @@
     "keyWarning": "请务必现在复制你的 API 密钥。之后将无法再次查看！",
     "copy": "复制到剪贴板",
     "copied": "已复制！",
-    "confirmDelete": "确定要删除这个 API 密钥吗？",
-    "history": "转换历史",
-    "noHistory": "暂无转换记录",
-    "dimensions": "尺寸",
-    "fileSize": "文件大小",
-    "fullPageYes": "全页截图",
-    "viewMore": "查看更多",
-    "total": "条记录",
-    "confirmDeleteHistory": "确定要删除这条转换记录吗？"
+    "confirmDelete": "确定要删除这个 API 密钥吗？"
   },
   "admin": {
     "title": "管理后台",

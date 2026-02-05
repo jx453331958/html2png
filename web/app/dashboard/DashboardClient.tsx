@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Dictionary } from '@/lib/i18n'
 
 interface ApiKey {
@@ -9,17 +9,6 @@ interface ApiKey {
   name: string | null
   created_at: string
   last_used_at: string | null
-}
-
-interface Conversion {
-  id: number
-  html_preview: string | null
-  width: number
-  height: number | null
-  dpr: number
-  full_page: number
-  file_size: number | null
-  created_at: string
 }
 
 interface DashboardClientProps {
@@ -43,40 +32,10 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
   const [passwordError, setPasswordError] = useState('')
   const [passwordSuccess, setPasswordSuccess] = useState('')
 
-  // Conversion history state
-  const [conversions, setConversions] = useState<Conversion[]>([])
-  const [conversionsTotal, setConversionsTotal] = useState(0)
-  const [conversionsLoading, setConversionsLoading] = useState(false)
-  const [conversionsOffset, setConversionsOffset] = useState(0)
-  const conversionsLimit = 10
-
-  useEffect(() => {
-    loadConversions()
-  }, [])
-
   const loadKeys = async () => {
     const response = await fetch('/api/keys')
     const data = await response.json()
     setKeys(data.keys || [])
-  }
-
-  const loadConversions = async (offset = 0) => {
-    setConversionsLoading(true)
-    try {
-      const response = await fetch(`/api/conversions?limit=${conversionsLimit}&offset=${offset}`)
-      const data = await response.json()
-      if (offset === 0) {
-        setConversions(data.conversions || [])
-      } else {
-        setConversions(prev => [...prev, ...(data.conversions || [])])
-      }
-      setConversionsTotal(data.total || 0)
-      setConversionsOffset(offset)
-    } catch {
-      console.error('Failed to load conversions')
-    } finally {
-      setConversionsLoading(false)
-    }
   }
 
   const createKey = async () => {
@@ -110,17 +69,6 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
       await loadKeys()
     } catch {
       setError('Failed to delete API key')
-    }
-  }
-
-  const deleteConversion = async (id: number) => {
-    if (!confirm(dict.dashboard.confirmDeleteHistory)) return
-    try {
-      await fetch(`/api/conversions/${id}`, { method: 'DELETE' })
-      setConversions(prev => prev.filter(c => c.id !== id))
-      setConversionsTotal(prev => prev - 1)
-    } catch {
-      console.error('Failed to delete conversion')
     }
   }
 
@@ -172,13 +120,6 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '-'
     return new Date(dateStr).toLocaleDateString()
-  }
-
-  const formatFileSize = (bytes: number | null) => {
-    if (!bytes) return '-'
-    if (bytes < 1024) return `${bytes} B`
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-    return `${(bytes / 1024 / 1024).toFixed(1)} MB`
   }
 
   return (
@@ -334,81 +275,8 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
         )}
       </div>
 
-      {/* Conversion History */}
-      <div className="glass-card mt-8 slide-up stagger-4">
-        <div className="p-5 border-b border-white/[0.08]">
-          <div className="section-header !mb-0 !pb-0 !border-0">
-            <div className="section-icon">
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <span className="section-title">{dict.dashboard.history}</span>
-            <span className="ml-auto text-sm text-zinc-500">{conversionsTotal} {dict.dashboard.total}</span>
-          </div>
-        </div>
-
-        {conversions.length === 0 ? (
-          <div className="p-16 text-center">
-            <svg className="w-12 h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-zinc-500 font-orbitron text-xs tracking-wider">{dict.dashboard.noHistory}</p>
-          </div>
-        ) : (
-          <div>
-            {conversions.map((conversion) => (
-              <div
-                key={conversion.id}
-                className="flex items-center justify-between p-5 border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02] transition-colors"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-xs text-zinc-400">{formatDate(conversion.created_at)}</span>
-                    {conversion.full_page === 1 && (
-                      <span className="text-xs px-2 py-0.5 bg-cyber-cyan/20 text-cyber-cyan rounded">
-                        {dict.dashboard.fullPageYes}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-zinc-300 truncate mb-1.5" title={conversion.html_preview || ''}>
-                    {conversion.html_preview || '-'}
-                  </p>
-                  <p className="text-xs text-zinc-500">
-                    {dict.dashboard.dimensions}: {conversion.width}×{conversion.height || 'auto'} @{conversion.dpr}x
-                    <span className="ml-4">{dict.dashboard.fileSize}: {formatFileSize(conversion.file_size)}</span>
-                  </p>
-                </div>
-                <button
-                  onClick={() => deleteConversion(conversion.id)}
-                  className="cyber-btn cyber-btn-danger !py-2 !px-4 !text-xs ml-4"
-                >
-                  {dict.dashboard.delete}
-                </button>
-              </div>
-            ))}
-
-            {conversions.length < conversionsTotal && (
-              <div className="p-5 text-center">
-                <button
-                  onClick={() => loadConversions(conversionsOffset + conversionsLimit)}
-                  disabled={conversionsLoading}
-                  className="cyber-btn !py-2 !px-6 !text-sm"
-                >
-                  {conversionsLoading ? (
-                    <span className="cyber-spinner" />
-                  ) : (
-                    dict.dashboard.viewMore
-                  )}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
       {/* API Usage */}
-      <div className="glass-card p-7 mt-8 slide-up stagger-5">
+      <div className="glass-card p-7 mt-8 slide-up stagger-4">
         <div className="section-header">
           <div className="section-icon">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
