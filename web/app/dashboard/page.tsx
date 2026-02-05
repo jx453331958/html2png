@@ -1,8 +1,15 @@
+import { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getDictionary, Locale } from '@/lib/i18n'
 import { getCurrentUser, listApiKeys } from '@/lib/auth'
 import DashboardClient from './DashboardClient'
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Manage your API keys for HTML2PNG',
+  robots: { index: false, follow: false },
+}
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()

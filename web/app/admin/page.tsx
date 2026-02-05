@@ -1,9 +1,16 @@
+import { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getDictionary, Locale } from '@/lib/i18n'
 import { getCurrentUser, isUserAdmin, initializeAdmin } from '@/lib/auth'
 import { isRegistrationEnabled, getAllUsers } from '@/lib/db'
 import AdminClient from './AdminClient'
+
+export const metadata: Metadata = {
+  title: 'Admin Panel',
+  description: 'HTML2PNG Administration',
+  robots: { index: false, follow: false },
+}
 
 export default async function AdminPage() {
   // Initialize admin from env on first load
