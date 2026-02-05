@@ -193,7 +193,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
             </select>
           </div>
           <div className="flex items-center pt-7">
-            <label className="flex items-center gap-3 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer group relative">
               <input
                 type="checkbox"
                 checked={fullPage}
@@ -201,6 +201,15 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
                 className="w-5 h-5 rounded bg-black/40 border border-white/[0.08] checked:bg-cyber-cyan checked:border-cyber-cyan transition-all cursor-pointer"
               />
               <span className="text-sm text-zinc-400">{dict.converter.fullPage}</span>
+              <span className="ml-1 text-zinc-500 hover:text-cyber-cyan cursor-help">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+              <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-black/90 border border-white/10 rounded-lg text-xs text-zinc-300 whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                {dict.converter.fullPageTip}
+                <div className="absolute top-full left-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-black/90" />
+              </div>
             </label>
           </div>
         </div>

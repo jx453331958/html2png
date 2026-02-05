@@ -39,6 +39,7 @@
     "autoHeight": "自动",
     "dpr": "像素比",
     "fullPage": "全页截图",
+    "fullPageTip": "截取整个可滚动页面内容，忽略高度设置",
     "convert": "转换为 PNG",
     "converting": "转换中...",
     "preview": "预览",

@@ -39,6 +39,7 @@
     "autoHeight": "Auto",
     "dpr": "Pixel Ratio",
     "fullPage": "Full Page",
+    "fullPageTip": "Capture the entire scrollable page content, ignoring height setting",
     "convert": "Convert to PNG",
     "converting": "Converting...",
     "preview": "Preview",
