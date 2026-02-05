@@ -138,7 +138,7 @@ export default async function RootLayout({
       <body className="min-h-screen">
         <Background />
         <Navbar dict={dict} locale={locale} user={user} />
-        <main className="pt-[70px]">
+        <main className="pt-[60px] md:pt-[70px]">
           {children}
         </main>
       </body>

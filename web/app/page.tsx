@@ -10,13 +10,13 @@ export default async function Home() {
   const user = await getCurrentUser()
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
+    <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 md:py-12">
       {/* Hero */}
-      <div className="text-center mb-16 fade-in">
-        <h1 className="font-orbitron text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-wide neon-text mb-4">
+      <div className="text-center mb-10 md:mb-16 fade-in">
+        <h1 className="font-orbitron text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-wide neon-text mb-3 md:mb-4">
           {dict.converter.title}
         </h1>
-        <p className="text-lg text-zinc-400 max-w-xl mx-auto">
+        <p className="text-base md:text-lg text-zinc-400 max-w-xl mx-auto px-4 md:px-0">
           {dict.converter.subtitle}
         </p>
       </div>

@@ -215,20 +215,22 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="space-y-6 md:space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         {/* Input Section */}
-        <div className="glass-card p-7 slide-up stagger-1">
-          <div className="section-header">
-            <div className="section-icon">
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
+        <div className="glass-card p-4 md:p-7 slide-up stagger-1">
+          <div className="section-header flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <div className="section-icon">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              </div>
+              <span className="section-title">{dict.converter.htmlInput}</span>
             </div>
-            <span className="section-title">{dict.converter.htmlInput}</span>
             <button
               onClick={triggerFileUpload}
-              className="ml-auto flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-cyber-cyan hover:text-white bg-cyber-cyan/10 hover:bg-cyber-cyan/20 border border-cyber-cyan/30 rounded transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-cyber-cyan hover:text-white bg-cyber-cyan/10 hover:bg-cyber-cyan/20 border border-cyber-cyan/30 rounded transition-all"
             >
               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -247,11 +249,11 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
           <textarea
             value={html}
             onChange={(e) => setHtml(e.target.value)}
-            className="cyber-input cyber-textarea h-72"
+            className="cyber-input cyber-textarea h-56 md:h-72"
             placeholder={dict.converter.placeholder}
           />
 
-          <div className="grid grid-cols-2 gap-4 mt-5">
+          <div className="grid grid-cols-2 gap-3 md:gap-4 mt-4 md:mt-5">
             <div>
               <label className="cyber-label">{dict.converter.width}</label>
               <input
@@ -312,7 +314,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
           <button
             onClick={handleConvert}
             disabled={loading || !html.trim()}
-            className="cyber-btn w-full mt-6 flex items-center justify-center gap-3"
+            className="cyber-btn w-full mt-4 md:mt-6 flex items-center justify-center gap-3"
           >
             {loading ? (
               <span className="cyber-spinner" />
@@ -328,7 +330,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
         </div>
 
         {/* Preview Section */}
-        <div className="glass-card p-7 slide-up stagger-2">
+        <div className="glass-card p-4 md:p-7 slide-up stagger-2">
           <div className="section-header">
             <div className="section-icon">
               <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,7 +356,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
           {previewUrl && (
             <button
               onClick={handleDownload}
-              className="cyber-btn cyber-btn-success w-full mt-5 flex items-center justify-center gap-3"
+              className="cyber-btn cyber-btn-success w-full mt-4 md:mt-5 flex items-center justify-center gap-3"
             >
               <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -368,15 +370,17 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
       {/* Conversion History */}
       {isLoggedIn && conversions.length > 0 && (
         <div className="glass-card slide-up stagger-3">
-          <div className="p-5 border-b border-white/[0.08]">
-            <div className="section-header !mb-0 !pb-0 !border-0">
-              <div className="section-icon">
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+          <div className="p-4 md:p-5 border-b border-white/[0.08]">
+            <div className="section-header !mb-0 !pb-0 !border-0 flex-wrap">
+              <div className="flex items-center gap-3">
+                <div className="section-icon">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span className="section-title">{dict.converter.history}</span>
               </div>
-              <span className="section-title">{dict.converter.history}</span>
-              <span className="ml-auto text-sm text-zinc-500">{conversionsTotal} {dict.converter.historyTotal}</span>
+              <span className="text-sm text-zinc-500">{conversionsTotal} {dict.converter.historyTotal}</span>
             </div>
           </div>
 
@@ -384,13 +388,13 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
             {conversions.map((conversion) => (
               <div
                 key={conversion.id}
-                className="flex items-center justify-between p-5 border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02] transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02] transition-colors gap-3"
               >
                 <div
                   className="flex-1 min-w-0 cursor-pointer"
                   onClick={() => loadFromHistory(conversion)}
                 >
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
                     <span className="text-xs text-zinc-400">{formatDate(conversion.created_at)}</span>
                     {conversion.full_page === 1 && (
                       <span className="text-xs px-2 py-0.5 bg-cyber-cyan/20 text-cyber-cyan rounded">
@@ -411,7 +415,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
                     e.stopPropagation()
                     deleteConversion(conversion.id)
                   }}
-                  className="cyber-btn cyber-btn-danger !py-2 !px-4 !text-xs ml-4"
+                  className="cyber-btn cyber-btn-danger !py-2 !px-4 !text-xs self-start sm:self-center"
                 >
                   {dict.converter.delete}
                 </button>
@@ -419,7 +423,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
             ))}
 
             {conversions.length < conversionsTotal && (
-              <div className="p-5 text-center">
+              <div className="p-4 md:p-5 text-center">
                 <button
                   onClick={() => loadConversions(conversionsOffset + conversionsLimit)}
                   disabled={conversionsLoading}

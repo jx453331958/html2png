@@ -125,26 +125,28 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
       {/* Header */}
-      <div className="mb-10 fade-in">
-        <h1 className="font-orbitron text-3xl font-extrabold tracking-wide neon-text">
+      <div className="mb-8 md:mb-10 fade-in">
+        <h1 className="font-orbitron text-2xl md:text-3xl font-extrabold tracking-wide neon-text">
           {dict.dashboard.title}
         </h1>
       </div>
 
       {/* Change Password */}
-      <div className="glass-card p-7 mb-8 slide-up stagger-1">
+      <div className="glass-card p-4 md:p-7 mb-6 md:mb-8 slide-up stagger-1">
         <div className="section-header">
-          <div className="section-icon">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+          <div className="flex items-center gap-3">
+            <div className="section-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <span className="section-title">{dict.auth.changePassword}</span>
           </div>
-          <span className="section-title">{dict.auth.changePassword}</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           <input
             type="password"
             value={currentPassword}
@@ -188,28 +190,30 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
       </div>
 
       {/* Create API Key */}
-      <div className="glass-card p-7 mb-8 slide-up stagger-2">
+      <div className="glass-card p-4 md:p-7 mb-6 md:mb-8 slide-up stagger-2">
         <div className="section-header">
-          <div className="section-icon">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
+          <div className="flex items-center gap-3">
+            <div className="section-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </div>
+            <span className="section-title">{dict.dashboard.createKey}</span>
           </div>
-          <span className="section-title">{dict.dashboard.createKey}</span>
         </div>
 
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
           <input
             type="text"
             value={newKeyName}
             onChange={(e) => setNewKeyName(e.target.value)}
-            className="cyber-input flex-1 min-w-[200px]"
+            className="cyber-input flex-1"
             placeholder={dict.dashboard.keyNamePlaceholder}
           />
           <button
             onClick={createKey}
             disabled={loading}
-            className="cyber-btn flex items-center gap-3"
+            className="cyber-btn flex items-center justify-center gap-3"
           >
             {loading ? (
               <span className="cyber-spinner" />
@@ -228,20 +232,22 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
 
       {/* API Keys List */}
       <div className="glass-card slide-up stagger-3">
-        <div className="p-5 border-b border-white/[0.08]">
+        <div className="p-4 md:p-5 border-b border-white/[0.08]">
           <div className="section-header !mb-0 !pb-0 !border-0">
-            <div className="section-icon">
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
+            <div className="flex items-center gap-3">
+              <div className="section-icon">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+              </div>
+              <span className="section-title">{dict.dashboard.yourKeys}</span>
             </div>
-            <span className="section-title">{dict.dashboard.yourKeys}</span>
           </div>
         </div>
 
         {keys.length === 0 ? (
-          <div className="p-16 text-center">
-            <svg className="w-12 h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="p-10 md:p-16 text-center">
+            <svg className="w-10 md:w-12 h-10 md:h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
             <p className="text-zinc-500 font-orbitron text-xs tracking-wider">{dict.dashboard.noKeys}</p>
@@ -251,15 +257,15 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
             {keys.map((key) => (
               <div
                 key={key.id}
-                className="flex items-center justify-between p-5 border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02] transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02] transition-colors gap-3"
               >
-                <div>
+                <div className="min-w-0">
                   <p className="font-semibold mb-1">{key.name || dict.dashboard.unnamed}</p>
-                  <p className="font-mono text-sm text-cyber-cyan">{key.key_prefix}</p>
+                  <p className="font-mono text-sm text-cyber-cyan truncate">{key.key_prefix}</p>
                   <p className="text-xs text-zinc-500 mt-1.5">
                     {dict.dashboard.created} {formatDate(key.created_at)}
                     {key.last_used_at && (
-                      <span className="ml-4">
+                      <span className="ml-2 md:ml-4">
                         {dict.dashboard.lastUsed} {formatDate(key.last_used_at)}
                       </span>
                     )}
@@ -267,7 +273,7 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
                 </div>
                 <button
                   onClick={() => deleteKey(key.id)}
-                  className="cyber-btn cyber-btn-danger !py-2 !px-4 !text-xs"
+                  className="cyber-btn cyber-btn-danger !py-2 !px-4 !text-xs self-start sm:self-center"
                 >
                   {dict.dashboard.delete}
                 </button>
@@ -278,18 +284,20 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
       </div>
 
       {/* API Usage */}
-      <div className="glass-card p-7 mt-8 slide-up stagger-4">
+      <div className="glass-card p-4 md:p-7 mt-6 md:mt-8 slide-up stagger-4">
         <div className="section-header">
-          <div className="section-icon">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+          <div className="flex items-center gap-3">
+            <div className="section-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <span className="section-title">{dict.dashboard.usage}</span>
           </div>
-          <span className="section-title">{dict.dashboard.usage}</span>
         </div>
 
-        <div className="cyber-code">
-          <pre>
+        <div className="cyber-code text-xs md:text-sm">
+          <pre className="whitespace-pre-wrap break-all">
             <span className="cmd">curl</span> -X POST https://your-domain.com/api/convert \{'\n'}
             {'  '}-H <span className="string">&quot;X-API-Key: h2p_your_api_key&quot;</span> \{'\n'}
             {'  '}-H <span className="string">&quot;Content-Type: application/json&quot;</span> \{'\n'}
@@ -305,8 +313,8 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
 
       {/* New Key Modal */}
       {newKey && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6">
-          <div className="glass-card p-8 max-w-lg w-full animate-[slideUp_0.3s_ease]">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 md:p-6">
+          <div className="glass-card p-5 md:p-8 max-w-lg w-full animate-[slideUp_0.3s_ease]">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-orbitron font-semibold text-green-400">{dict.dashboard.keyCreated}</h3>
               <button

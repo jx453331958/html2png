@@ -68,18 +68,18 @@ export default function RegisterClient({ dict, registrationEnabled, invitationRe
   }
 
   return (
-    <div className="min-h-[calc(100vh-70px)] flex items-center justify-center px-6">
+    <div className="min-h-[calc(100vh-60px)] md:min-h-[calc(100vh-70px)] flex items-center justify-center px-4 md:px-6 py-8">
       <div className="w-full max-w-md">
-        <div className="glass-card p-10 slide-up relative">
+        <div className="glass-card p-6 md:p-10 slide-up relative">
           {/* Corner decorations */}
-          <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-cyber-cyan/30" />
-          <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-fuchsia-500/30" />
+          <div className="absolute top-0 left-0 w-12 md:w-16 h-12 md:h-16 border-t-2 border-l-2 border-cyber-cyan/30" />
+          <div className="absolute bottom-0 right-0 w-12 md:w-16 h-12 md:h-16 border-b-2 border-r-2 border-fuchsia-500/30" />
 
-          <div className="text-center mb-10">
-            <Link href="/" className="font-orbitron text-3xl font-extrabold neon-text">
+          <div className="text-center mb-8 md:mb-10">
+            <Link href="/" className="font-orbitron text-2xl md:text-3xl font-extrabold neon-text">
               HTML2PNG
             </Link>
-            <h1 className="font-orbitron text-xl font-semibold mt-6 tracking-wider">
+            <h1 className="font-orbitron text-lg md:text-xl font-semibold mt-5 md:mt-6 tracking-wider">
               {dict.auth.register}
             </h1>
           </div>

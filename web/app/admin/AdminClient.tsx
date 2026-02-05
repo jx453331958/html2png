@@ -204,10 +204,10 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
       {/* Header */}
-      <div className="mb-10 fade-in">
-        <h1 className="font-orbitron text-3xl font-extrabold tracking-wide neon-text">
+      <div className="mb-8 md:mb-10 fade-in">
+        <h1 className="font-orbitron text-2xl md:text-3xl font-extrabold tracking-wide neon-text">
           {dict.admin.title}
         </h1>
       </div>
@@ -215,27 +215,29 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
       {error && <div className="cyber-error mb-6">{error}</div>}
 
       {/* System Settings */}
-      <div className="glass-card p-7 mb-8 slide-up stagger-1">
+      <div className="glass-card p-4 md:p-7 mb-6 md:mb-8 slide-up stagger-1">
         <div className="section-header">
-          <div className="section-icon">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+          <div className="flex items-center gap-3">
+            <div className="section-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <span className="section-title">{dict.admin.settings}</span>
           </div>
-          <span className="section-title">{dict.admin.settings}</span>
         </div>
 
         {/* Registration Toggle */}
-        <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-white/[0.05] mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-black/20 rounded-lg border border-white/[0.05] mb-4">
           <div>
-            <p className="font-semibold mb-1">{dict.admin.registration}</p>
-            <p className="text-sm text-zinc-500">{dict.admin.registrationHint}</p>
+            <p className="font-semibold mb-1 text-sm md:text-base">{dict.admin.registration}</p>
+            <p className="text-xs md:text-sm text-zinc-500">{dict.admin.registrationHint}</p>
           </div>
           <button
             onClick={() => toggleSetting('registrationEnabled')}
             disabled={loading}
-            className={`relative w-14 h-7 rounded-full transition-all ${
+            className={`relative w-14 h-7 rounded-full transition-all flex-shrink-0 ${
               settings.registrationEnabled
                 ? 'bg-green-500 shadow-[0_0_15px_rgba(0,255,136,0.5)]'
                 : 'bg-zinc-700'
@@ -250,15 +252,15 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
         </div>
 
         {/* Invitation Required Toggle */}
-        <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-white/[0.05]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-black/20 rounded-lg border border-white/[0.05]">
           <div>
-            <p className="font-semibold mb-1">{dict.admin.invitationRequired}</p>
-            <p className="text-sm text-zinc-500">{dict.admin.invitationRequiredHint}</p>
+            <p className="font-semibold mb-1 text-sm md:text-base">{dict.admin.invitationRequired}</p>
+            <p className="text-xs md:text-sm text-zinc-500">{dict.admin.invitationRequiredHint}</p>
           </div>
           <button
             onClick={() => toggleSetting('invitationRequired')}
             disabled={loading || !settings.registrationEnabled}
-            className={`relative w-14 h-7 rounded-full transition-all ${
+            className={`relative w-14 h-7 rounded-full transition-all flex-shrink-0 ${
               settings.invitationRequired
                 ? 'bg-fuchsia-500 shadow-[0_0_15px_rgba(217,70,239,0.5)]'
                 : 'bg-zinc-700'
@@ -272,7 +274,7 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
           </button>
         </div>
 
-        <div className="mt-4 p-4 rounded-lg border border-white/[0.05] flex gap-4">
+        <div className="mt-4 p-4 rounded-lg border border-white/[0.05] flex flex-wrap gap-3 md:gap-4">
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${settings.registrationEnabled ? 'bg-green-400 shadow-[0_0_10px_#00ff88]' : 'bg-red-400 shadow-[0_0_10px_#ff4444]'}`} />
             <span className="text-sm">
@@ -291,22 +293,24 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
       </div>
 
       {/* Invitation Codes */}
-      <div className="glass-card mb-8 slide-up stagger-2">
-        <div className="p-5 border-b border-white/[0.08]">
+      <div className="glass-card mb-6 md:mb-8 slide-up stagger-2">
+        <div className="p-4 md:p-5 border-b border-white/[0.08]">
           <div className="section-header !mb-0 !pb-0 !border-0">
-            <div className="section-icon">
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-              </svg>
+            <div className="flex items-center gap-3">
+              <div className="section-icon">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
+              </div>
+              <span className="section-title">{dict.admin.invitationCodes}</span>
             </div>
-            <span className="section-title">{dict.admin.invitationCodes}</span>
           </div>
         </div>
 
         {/* Create Invitation Form */}
-        <div className="p-5 border-b border-white/[0.08]">
+        <div className="p-4 md:p-5 border-b border-white/[0.08]">
           <p className="text-sm font-semibold mb-3">{dict.admin.createInvitation}</p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <input
               type="text"
               value={newInvitationName}
@@ -352,101 +356,154 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
 
         {/* Invitation Codes List */}
         {invitationCodes.length === 0 ? (
-          <div className="p-16 text-center">
-            <svg className="w-12 h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="p-10 md:p-16 text-center">
+            <svg className="w-10 md:w-12 h-10 md:h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
             </svg>
             <p className="text-zinc-500 font-orbitron text-xs tracking-wider">{dict.admin.noInvitations}</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-left text-xs text-zinc-500 border-b border-white/[0.08]">
-                  <th className="p-4 font-medium">{dict.admin.code}</th>
-                  <th className="p-4 font-medium">{dict.admin.invitationName}</th>
-                  <th className="p-4 font-medium">{dict.admin.uses}</th>
-                  <th className="p-4 font-medium">{dict.admin.status}</th>
-                  <th className="p-4 font-medium">{dict.admin.expiresAt}</th>
-                  <th className="p-4 font-medium"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {invitationCodes.map((code) => {
-                  const status = getInvitationStatus(code)
-                  return (
-                    <tr key={code.id} className="border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02]">
-                      <td className="p-4">
-                        <button
-                          onClick={() => copyCode(code.code)}
-                          className="font-mono text-cyber-cyan hover:text-cyber-cyan/80 flex items-center gap-2"
-                          title="Click to copy"
-                        >
-                          {code.code}
-                          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="opacity-50">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
-                        </button>
-                      </td>
-                      <td className="p-4 text-sm">{code.name || '-'}</td>
-                      <td className="p-4 text-sm">
-                        {code.used_count} / {code.max_uses === 0 ? '∞' : code.max_uses}
-                      </td>
-                      <td className="p-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs ${status.color}/20 text-white`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${status.color}`} />
-                          {status.label}
-                        </span>
-                      </td>
-                      <td className="p-4 text-sm text-zinc-500">
-                        {code.expires_at ? formatDate(code.expires_at) : dict.admin.noExpiry}
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-2 justify-end">
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left text-xs text-zinc-500 border-b border-white/[0.08]">
+                    <th className="p-4 font-medium">{dict.admin.code}</th>
+                    <th className="p-4 font-medium">{dict.admin.invitationName}</th>
+                    <th className="p-4 font-medium">{dict.admin.uses}</th>
+                    <th className="p-4 font-medium">{dict.admin.status}</th>
+                    <th className="p-4 font-medium">{dict.admin.expiresAt}</th>
+                    <th className="p-4 font-medium"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invitationCodes.map((code) => {
+                    const status = getInvitationStatus(code)
+                    return (
+                      <tr key={code.id} className="border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02]">
+                        <td className="p-4">
                           <button
-                            onClick={() => toggleInvitation(code.id)}
-                            className={`px-3 py-1.5 rounded text-xs transition-colors ${
-                              code.is_active === 1
-                                ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-300'
-                                : 'bg-green-500/20 hover:bg-green-500/30 text-green-400'
-                            }`}
+                            onClick={() => copyCode(code.code)}
+                            className="font-mono text-cyber-cyan hover:text-cyber-cyan/80 flex items-center gap-2"
+                            title="Click to copy"
                           >
-                            {code.is_active === 1 ? dict.admin.inactive : dict.admin.active}
+                            {code.code}
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="opacity-50">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
                           </button>
-                          <button
-                            onClick={() => deleteInvitation(code.id)}
-                            className="cyber-btn cyber-btn-danger !py-1.5 !px-3 !text-xs"
-                          >
-                            {dict.admin.delete}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                        </td>
+                        <td className="p-4 text-sm">{code.name || '-'}</td>
+                        <td className="p-4 text-sm">
+                          {code.used_count} / {code.max_uses === 0 ? '∞' : code.max_uses}
+                        </td>
+                        <td className="p-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs ${status.color}/20 text-white`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${status.color}`} />
+                            {status.label}
+                          </span>
+                        </td>
+                        <td className="p-4 text-sm text-zinc-500">
+                          {code.expires_at ? formatDate(code.expires_at) : dict.admin.noExpiry}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={() => toggleInvitation(code.id)}
+                              className={`px-3 py-1.5 rounded text-xs transition-colors ${
+                                code.is_active === 1
+                                  ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-300'
+                                  : 'bg-green-500/20 hover:bg-green-500/30 text-green-400'
+                              }`}
+                            >
+                              {code.is_active === 1 ? dict.admin.inactive : dict.admin.active}
+                            </button>
+                            <button
+                              onClick={() => deleteInvitation(code.id)}
+                              className="cyber-btn cyber-btn-danger !py-1.5 !px-3 !text-xs"
+                            >
+                              {dict.admin.delete}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {/* Mobile Cards */}
+            <div className="md:hidden">
+              {invitationCodes.map((code) => {
+                const status = getInvitationStatus(code)
+                return (
+                  <div key={code.id} className="p-4 border-b border-white/[0.08] last:border-0">
+                    <div className="flex items-center justify-between mb-3">
+                      <button
+                        onClick={() => copyCode(code.code)}
+                        className="font-mono text-cyber-cyan hover:text-cyber-cyan/80 flex items-center gap-2"
+                      >
+                        {code.code}
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="opacity-50">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs ${status.color}/20 text-white`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${status.color}`} />
+                        {status.label}
+                      </span>
+                    </div>
+                    <div className="text-xs text-zinc-500 space-y-1 mb-3">
+                      {code.name && <p>{dict.admin.invitationName}: {code.name}</p>}
+                      <p>{dict.admin.uses}: {code.used_count} / {code.max_uses === 0 ? '∞' : code.max_uses}</p>
+                      <p>{dict.admin.expiresAt}: {code.expires_at ? formatDate(code.expires_at) : dict.admin.noExpiry}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => toggleInvitation(code.id)}
+                        className={`flex-1 px-3 py-2 rounded text-xs transition-colors ${
+                          code.is_active === 1
+                            ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-300'
+                            : 'bg-green-500/20 hover:bg-green-500/30 text-green-400'
+                        }`}
+                      >
+                        {code.is_active === 1 ? dict.admin.inactive : dict.admin.active}
+                      </button>
+                      <button
+                        onClick={() => deleteInvitation(code.id)}
+                        className="cyber-btn cyber-btn-danger !py-2 !px-3 !text-xs"
+                      >
+                        {dict.admin.delete}
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </>
         )}
       </div>
 
       {/* Users List */}
       <div className="glass-card slide-up stagger-3">
-        <div className="p-5 border-b border-white/[0.08]">
-          <div className="section-header !mb-0 !pb-0 !border-0">
-            <div className="section-icon">
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
+        <div className="p-4 md:p-5 border-b border-white/[0.08]">
+          <div className="section-header !mb-0 !pb-0 !border-0 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="section-icon">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <span className="section-title">{dict.admin.users}</span>
             </div>
-            <span className="section-title">{dict.admin.users}</span>
-            <span className="ml-auto text-sm text-zinc-500">{users.length} {dict.admin.total}</span>
+            <span className="text-sm text-zinc-500">{users.length} {dict.admin.total}</span>
           </div>
         </div>
 
         {users.length === 0 ? (
-          <div className="p-16 text-center">
-            <svg className="w-12 h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="p-10 md:p-16 text-center">
+            <svg className="w-10 md:w-12 h-10 md:h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
             <p className="text-zinc-500 font-orbitron text-xs tracking-wider">{dict.admin.noUsers}</p>
@@ -456,23 +513,23 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
             {users.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center justify-between p-5 border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02] transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02] transition-colors gap-3"
               >
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${user.is_admin ? 'bg-fuchsia-500/20 border border-fuchsia-500/50' : 'bg-cyber-cyan/10 border border-cyber-cyan/30'}`}>
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className={`w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center flex-shrink-0 ${user.is_admin ? 'bg-fuchsia-500/20 border border-fuchsia-500/50' : 'bg-cyber-cyan/10 border border-cyber-cyan/30'}`}>
                     {user.is_admin ? (
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="text-fuchsia-400">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="text-fuchsia-400">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
                     ) : (
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="text-cyber-cyan">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="text-cyber-cyan">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     )}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold">{user.email}</p>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-sm md:text-base truncate">{user.email}</p>
                       {user.is_admin === 1 && (
                         <span className="px-2 py-0.5 text-[10px] font-orbitron font-bold bg-fuchsia-500/20 text-fuchsia-400 rounded border border-fuchsia-500/30">
                           ADMIN
@@ -482,12 +539,12 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
                     <p className="text-xs text-zinc-500 mt-1">
                       {dict.admin.joined} {formatDate(user.created_at)}
                       {user.invited_by_code && (
-                        <span className="ml-3 text-fuchsia-400">
+                        <span className="ml-2 md:ml-3 text-fuchsia-400">
                           {dict.admin.invitedBy} {user.invited_by_code}
                         </span>
                       )}
                       {!user.invited_by_code && user.is_admin !== 1 && (
-                        <span className="ml-3 text-zinc-600">
+                        <span className="ml-2 md:ml-3 text-zinc-600">
                           {dict.admin.noInvitation}
                         </span>
                       )}
@@ -497,7 +554,7 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
                 {user.is_admin !== 1 && (
                   <button
                     onClick={() => deleteUser(user.id)}
-                    className="cyber-btn cyber-btn-danger !py-2 !px-4 !text-xs"
+                    className="cyber-btn cyber-btn-danger !py-2 !px-4 !text-xs self-start sm:self-center"
                   >
                     {dict.admin.delete}
                   </button>

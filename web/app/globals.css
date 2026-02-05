@@ -78,10 +78,10 @@ body {
   position: relative;
   font-family: 'Orbitron', sans-serif;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 14px 28px;
+  padding: 12px 20px;
   background: linear-gradient(135deg, var(--cyan-dim) 0%, var(--cyan) 100%);
   color: var(--bg-primary);
   border: none;
@@ -90,6 +90,13 @@ body {
   overflow: hidden;
   transition: all 0.3s ease;
   box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+}
+
+@media (min-width: 768px) {
+  .cyber-btn {
+    font-size: 0.875rem;
+    padding: 14px 28px;
+  }
 }
 
 .cyber-btn:hover:not(:disabled) {
@@ -122,15 +129,22 @@ body {
 /* Cyber Input */
 .cyber-input {
   width: 100%;
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--border-glass);
   border-radius: 8px;
   color: #e4e4e7;
   font-family: 'Exo 2', sans-serif;
-  font-size: 0.95rem;
+  font-size: 16px; /* Prevents zoom on iOS */
   transition: all 0.3s ease;
   outline: none;
+}
+
+@media (min-width: 768px) {
+  .cyber-input {
+    padding: 14px 16px;
+    font-size: 0.95rem;
+  }
 }
 
 .cyber-input:focus {
@@ -174,10 +188,18 @@ body {
 .section-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border-glass);
+}
+
+@media (min-width: 768px) {
+  .section-header {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
 }
 
 .section-icon {
@@ -193,10 +215,16 @@ body {
 
 .section-title {
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: 0.9rem;
+  }
 }
 
 /* Preview Box */
@@ -204,11 +232,17 @@ body {
   background: rgba(0, 0, 0, 0.3);
   border: 1px dashed var(--border-glass);
   border-radius: 12px;
-  min-height: 300px;
+  min-height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: auto;
+}
+
+@media (min-width: 768px) {
+  .preview-box {
+    min-height: 300px;
+  }
 }
 
 .preview-box.has-image {
