@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Dictionary } from '@/lib/i18n'
 
@@ -33,6 +33,7 @@ interface ConverterProps {
 
 export default function Converter({ dict, isLoggedIn }: ConverterProps) {
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [html, setHtml] = useState(defaultHtml)
   const [width, setWidth] = useState(1200)
   const [height, setHeight] = useState('')
@@ -89,6 +90,36 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
     }
   }
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
+      setError(dict.converter.invalidFileType)
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const content = event.target?.result as string
+      setHtml(content)
+      setError('')
+    }
+    reader.onerror = () => {
+      setError(dict.converter.fileReadError)
+    }
+    reader.readAsText(file)
+
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click()
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Input Section */}
@@ -100,6 +131,22 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
             </svg>
           </div>
           <span className="section-title">{dict.converter.htmlInput}</span>
+          <button
+            onClick={triggerFileUpload}
+            className="ml-auto flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-cyber-cyan hover:text-white bg-cyber-cyan/10 hover:bg-cyber-cyan/20 border border-cyber-cyan/30 rounded transition-all"
+          >
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            {dict.converter.uploadFile}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".html,.htm"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
         </div>
 
         <textarea

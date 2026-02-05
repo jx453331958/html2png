@@ -9,41 +9,75 @@
 - HTML 转 PNG，支持自定义视窗大小
 - 支持设备像素比 (1x, 2x, 3x) 以适配高清屏幕
 - 全页截图选项
+- 支持上传 HTML 文件
 - JWT 用户认证
 - API 密钥管理，支持编程访问
+- 管理员后台，可控制用户注册
 - 请求频率限制保护
 - 多语言支持（英文、中文）
 - Docker 部署支持
 
 ## 快速开始
 
+### Docker 部署（推荐）
+
+1. 克隆仓库：
+```bash
+git clone https://github.com/yourusername/html2png.git
+cd html2png/docker
+```
+
+2. 创建 `.env` 配置文件：
+```bash
+# 必填
+JWT_SECRET=你的安全随机密钥
+
+# 管理员账号（首次启动时创建）
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=你的安全密码
+```
+
+3. 启动服务：
+```bash
+docker-compose up -d
+```
+
+4. 访问 `http://localhost:3000`
+
+5. 使用管理员账号登录，如需开放用户注册，请在管理后台中开启。
+
 ### 本地开发
 
 ```bash
 # 克隆仓库
 git clone https://github.com/yourusername/html2png.git
-cd html2png
+cd html2png/web
 
-# 运行安装脚本
-./scripts/dev.sh
+# 安装依赖
+npm install
 
-# 启动服务
-cd server && npm run dev
+# 创建 .env 文件
+cp ../.env.example .env
+# 编辑 .env 配置
+
+# 启动开发服务器
+npm run dev
 ```
 
-服务将在 `http://localhost:3000` 可用。
+## 配置说明
 
-### Docker 部署
+环境变量（参见 `.env.example`）：
 
-```bash
-cd docker
-
-# 构建并运行
-docker-compose up -d
-
-# 查看日志
-docker-compose logs -f
-```
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| PORT | 3000 | 服务端口 |
+| HOST | 0.0.0.0 | 服务主机 |
+| JWT_SECRET | - | JWT 签名密钥（生产环境必须设置） |
+| ADMIN_EMAIL | - | 管理员账号邮箱（首次启动时创建） |
+| ADMIN_PASSWORD | - | 管理员账号密码 |
+| DATABASE_PATH | ./data/html2png.db | SQLite 数据库路径 |
+| RATE_LIMIT_MAX | 100 | 时间窗口内最大请求数 |
+| RATE_LIMIT_WINDOW_MS | 60000 | 频率限制时间窗口（毫秒） |
 
 ## API 接口文档
 
@@ -65,6 +99,7 @@ Content-Type: application/json
   "password": "your-password"
 }
 ```
+注意：需要管理员先开启注册功能。
 
 #### 用户登录
 ```http
@@ -126,19 +161,6 @@ DELETE /api/keys/:id
 Authorization: Bearer <token>
 ```
 
-## 配置说明
-
-环境变量（参见 `.env.example`）：
-
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| PORT | 3000 | 服务端口 |
-| HOST | 0.0.0.0 | 服务主机 |
-| JWT_SECRET | - | JWT 签名密钥（生产环境必须设置） |
-| DATABASE_PATH | ./data/html2png.db | SQLite 数据库路径 |
-| RATE_LIMIT_MAX | 100 | 时间窗口内最大请求数 |
-| RATE_LIMIT_WINDOW_MS | 60000 | 频率限制时间窗口（毫秒） |
-
 ## 使用示例
 
 ### cURL
@@ -196,9 +218,10 @@ with open('screenshot.png', 'wb') as f:
 
 ## 技术栈
 
-- **后端**: Node.js, Fastify, Playwright
-- **前端**: 原生 HTML, Alpine.js, TailwindCSS
+- **框架**: Next.js 15 (React 19)
+- **截图引擎**: Playwright
 - **数据库**: SQLite (better-sqlite3)
+- **样式**: TailwindCSS
 - **容器**: Docker（基于 Playwright 镜像）
 
 ## 开源协议

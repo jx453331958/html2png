@@ -9,41 +9,75 @@ A self-hosted service to convert HTML content to high-quality PNG images.
 - Convert HTML to PNG with customizable viewport size
 - Support for Device Pixel Ratio (1x, 2x, 3x) for high-DPI displays
 - Full page screenshot option
+- HTML file upload support
 - User authentication with JWT
 - API key management for programmatic access
+- Admin panel with registration control
 - Rate limiting protection
 - Multi-language support (English, Chinese)
 - Docker deployment ready
 
 ## Quick Start
 
+### Docker Deployment (Recommended)
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/html2png.git
+cd html2png/docker
+```
+
+2. Create `.env` file with your configuration:
+```bash
+# Required
+JWT_SECRET=your-secure-random-secret-key
+
+# Admin account (created on first startup)
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=your-secure-password
+```
+
+3. Start the service:
+```bash
+docker-compose up -d
+```
+
+4. Access the service at `http://localhost:3000`
+
+5. Login with your admin account and enable user registration in the Admin panel if needed.
+
 ### Local Development
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/html2png.git
-cd html2png
+cd html2png/web
 
-# Run setup script
-./scripts/dev.sh
+# Install dependencies
+npm install
 
-# Start the server
-cd server && npm run dev
+# Create .env file
+cp ../.env.example .env
+# Edit .env with your settings
+
+# Start development server
+npm run dev
 ```
 
-The server will be available at `http://localhost:3000`.
+## Configuration
 
-### Docker Deployment
+Environment variables (see `.env.example`):
 
-```bash
-cd docker
-
-# Build and run
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| PORT | 3000 | Server port |
+| HOST | 0.0.0.0 | Server host |
+| JWT_SECRET | - | Secret for JWT signing (required in production) |
+| ADMIN_EMAIL | - | Admin account email (created on first startup) |
+| ADMIN_PASSWORD | - | Admin account password |
+| DATABASE_PATH | ./data/html2png.db | SQLite database path |
+| RATE_LIMIT_MAX | 100 | Max requests per window |
+| RATE_LIMIT_WINDOW_MS | 60000 | Rate limit window in ms |
 
 ## API Reference
 
@@ -65,6 +99,7 @@ Content-Type: application/json
   "password": "your-password"
 }
 ```
+Note: Registration must be enabled by admin first.
 
 #### Login
 ```http
@@ -126,19 +161,6 @@ DELETE /api/keys/:id
 Authorization: Bearer <token>
 ```
 
-## Configuration
-
-Environment variables (see `.env.example`):
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| PORT | 3000 | Server port |
-| HOST | 0.0.0.0 | Server host |
-| JWT_SECRET | - | Secret for JWT signing (required in production) |
-| DATABASE_PATH | ./data/html2png.db | SQLite database path |
-| RATE_LIMIT_MAX | 100 | Max requests per window |
-| RATE_LIMIT_WINDOW_MS | 60000 | Rate limit window in ms |
-
 ## Usage Examples
 
 ### cURL
@@ -196,9 +218,10 @@ with open('screenshot.png', 'wb') as f:
 
 ## Tech Stack
 
-- **Backend**: Node.js, Fastify, Playwright
-- **Frontend**: Vanilla HTML, Alpine.js, TailwindCSS
+- **Framework**: Next.js 15 (React 19)
+- **Screenshot Engine**: Playwright
 - **Database**: SQLite (better-sqlite3)
+- **Styling**: TailwindCSS
 - **Container**: Docker with Playwright base image
 
 ## License
