@@ -31,7 +31,13 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Convert error:', error)
-    return NextResponse.json({ error: 'Conversion failed' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : ''
+    console.error('Convert error:', errorMessage)
+    console.error('Stack:', errorStack)
+    return NextResponse.json({
+      error: 'Conversion failed',
+      message: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+    }, { status: 500 })
   }
 }
