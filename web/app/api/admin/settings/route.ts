@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/auth'
-import { getSetting, setSetting, isRegistrationEnabled } from '@/lib/db'
+import { setSetting, isRegistrationEnabled, isInvitationRequired } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       registrationEnabled: isRegistrationEnabled(),
+      invitationRequired: isInvitationRequired(),
     })
   } catch (error) {
     console.error('Get settings error:', error)
@@ -25,14 +26,19 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { registrationEnabled } = await request.json()
+    const { registrationEnabled, invitationRequired } = await request.json()
 
     if (typeof registrationEnabled === 'boolean') {
       setSetting('registration_enabled', registrationEnabled ? 'true' : 'false')
     }
 
+    if (typeof invitationRequired === 'boolean') {
+      setSetting('invitation_required', invitationRequired ? 'true' : 'false')
+    }
+
     return NextResponse.json({
       registrationEnabled: isRegistrationEnabled(),
+      invitationRequired: isInvitationRequired(),
     })
   } catch (error) {
     console.error('Update settings error:', error)

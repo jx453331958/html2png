@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createUser, createToken } from '@/lib/auth'
-import { isRegistrationEnabled } from '@/lib/db'
+import {
+  isRegistrationEnabled,
+  isInvitationRequired,
+  validateInvitationCode,
+  useInvitationCode
+} from '@/lib/db'
 import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
@@ -10,7 +15,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Registration is currently disabled' }, { status: 403 })
     }
 
-    const { email, password } = await request.json()
+    const { email, password, invitationCode } = await request.json()
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
@@ -20,7 +25,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
     }
 
-    const user = await createUser(email, password)
+    // Check if invitation code is required
+    if (isInvitationRequired()) {
+      if (!invitationCode) {
+        return NextResponse.json({ error: 'Invitation code is required' }, { status: 400 })
+      }
+
+      const validation = validateInvitationCode(invitationCode)
+      if (!validation.valid) {
+        return NextResponse.json({ error: validation.error }, { status: 400 })
+      }
+    }
+
+    // Create user with invitation code if provided
+    const user = await createUser(email, password, false, invitationCode || undefined)
+
+    // Use the invitation code (increment used_count)
+    if (invitationCode) {
+      useInvitationCode(invitationCode)
+    }
+
     const token = await createToken({ id: user.id, email: user.email, isAdmin: false })
 
     const cookieStore = await cookies()

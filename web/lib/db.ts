@@ -59,6 +59,19 @@ function initSchema(db: Database.Database) {
     );
 
     CREATE INDEX IF NOT EXISTS idx_conversions_user_id ON conversions(user_id);
+
+    CREATE TABLE IF NOT EXISTS invitation_codes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT UNIQUE NOT NULL,
+      name TEXT,
+      max_uses INTEGER DEFAULT 1,
+      used_count INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      expires_at DATETIME
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_invitation_codes_code ON invitation_codes(code);
   `)
 
   // Add is_admin column if it doesn't exist (for existing databases)
@@ -68,11 +81,19 @@ function initSchema(db: Database.Database) {
     // Column already exists
   }
 
+  // Add invited_by_code column if it doesn't exist
+  try {
+    db.exec('ALTER TABLE users ADD COLUMN invited_by_code TEXT')
+  } catch {
+    // Column already exists
+  }
+
   // Initialize default settings
   const insertSetting = db.prepare(`
     INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)
   `)
   insertSetting.run('registration_enabled', 'false')
+  insertSetting.run('invitation_required', 'false')
 }
 
 export interface User {
@@ -80,6 +101,7 @@ export interface User {
   email: string
   password_hash: string
   is_admin: number
+  invited_by_code: string | null
   created_at: string
 }
 
@@ -112,6 +134,17 @@ export interface Conversion {
   created_at: string
 }
 
+export interface InvitationCode {
+  id: number
+  code: string
+  name: string | null
+  max_uses: number
+  used_count: number
+  is_active: number
+  created_at: string
+  expires_at: string | null
+}
+
 // System settings functions
 export function getSetting(key: string): string | null {
   const db = getDb()
@@ -138,11 +171,19 @@ export function setRegistrationEnabled(enabled: boolean): void {
   setSetting('registration_enabled', enabled ? 'true' : 'false')
 }
 
+export interface UserWithInvitation {
+  id: number
+  email: string
+  is_admin: number
+  invited_by_code: string | null
+  created_at: string
+}
+
 // Get all users (for admin)
-export function getAllUsers(): Omit<User, 'password_hash'>[] {
+export function getAllUsers(): UserWithInvitation[] {
   const db = getDb()
-  const stmt = db.prepare('SELECT id, email, is_admin, created_at FROM users ORDER BY created_at DESC')
-  return stmt.all() as Omit<User, 'password_hash'>[]
+  const stmt = db.prepare('SELECT id, email, is_admin, invited_by_code, created_at FROM users ORDER BY created_at DESC')
+  return stmt.all() as UserWithInvitation[]
 }
 
 // Delete user (for admin)
@@ -210,3 +251,109 @@ export function deleteConversion(userId: number, conversionId: number): boolean 
   const result = stmt.run(conversionId, userId)
   return result.changes > 0
 }
+
+// Invitation code functions
+export function isInvitationRequired(): boolean {
+  return getSetting('invitation_required') === 'true'
+}
+
+export function setInvitationRequired(required: boolean): void {
+  setSetting('invitation_required', required ? 'true' : 'false')
+}
+
+function generateInvitationCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code = ''
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return code
+}
+
+export function createInvitationCode(name?: string, maxUses = 1, expiresAt?: Date): InvitationCode {
+  const db = getDb()
+  let code: string
+  let attempts = 0
+
+  // Generate unique code
+  while (true) {
+    code = generateInvitationCode()
+    const existing = db.prepare('SELECT id FROM invitation_codes WHERE code = ?').get(code)
+    if (!existing) break
+    attempts++
+    if (attempts > 10) throw new Error('Failed to generate unique code')
+  }
+
+  const stmt = db.prepare(`
+    INSERT INTO invitation_codes (code, name, max_uses, expires_at)
+    VALUES (?, ?, ?, ?)
+  `)
+  const result = stmt.run(code, name || null, maxUses, expiresAt?.toISOString() || null)
+
+  return {
+    id: result.lastInsertRowid as number,
+    code,
+    name: name || null,
+    max_uses: maxUses,
+    used_count: 0,
+    is_active: 1,
+    created_at: new Date().toISOString(),
+    expires_at: expiresAt?.toISOString() || null,
+  }
+}
+
+export function listInvitationCodes(): InvitationCode[] {
+  const db = getDb()
+  const stmt = db.prepare(`
+    SELECT id, code, name, max_uses, used_count, is_active, created_at, expires_at
+    FROM invitation_codes
+    ORDER BY created_at DESC
+  `)
+  return stmt.all() as InvitationCode[]
+}
+
+export function deleteInvitationCode(codeId: number): boolean {
+  const db = getDb()
+  const stmt = db.prepare('DELETE FROM invitation_codes WHERE id = ?')
+  const result = stmt.run(codeId)
+  return result.changes > 0
+}
+
+export function toggleInvitationCode(codeId: number): boolean {
+  const db = getDb()
+  const stmt = db.prepare('UPDATE invitation_codes SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END WHERE id = ?')
+  const result = stmt.run(codeId)
+  return result.changes > 0
+}
+
+export function validateInvitationCode(code: string): { valid: boolean; error?: string } {
+  const db = getDb()
+  const stmt = db.prepare('SELECT * FROM invitation_codes WHERE code = ?')
+  const invitation = stmt.get(code) as InvitationCode | undefined
+
+  if (!invitation) {
+    return { valid: false, error: 'Invalid invitation code' }
+  }
+
+  if (invitation.is_active !== 1) {
+    return { valid: false, error: 'Invitation code is disabled' }
+  }
+
+  if (invitation.max_uses > 0 && invitation.used_count >= invitation.max_uses) {
+    return { valid: false, error: 'Invitation code has reached maximum uses' }
+  }
+
+  if (invitation.expires_at && new Date(invitation.expires_at) < new Date()) {
+    return { valid: false, error: 'Invitation code has expired' }
+  }
+
+  return { valid: true }
+}
+
+export function useInvitationCode(code: string): boolean {
+  const db = getDb()
+  const stmt = db.prepare('UPDATE invitation_codes SET used_count = used_count + 1 WHERE code = ?')
+  const result = stmt.run(code)
+  return result.changes > 0
+}
+

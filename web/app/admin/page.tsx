@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getDictionary, Locale } from '@/lib/i18n'
 import { getCurrentUser, isUserAdmin, initializeAdmin } from '@/lib/auth'
-import { isRegistrationEnabled, getAllUsers } from '@/lib/db'
+import { isRegistrationEnabled, isInvitationRequired, getAllUsers, listInvitationCodes } from '@/lib/db'
 import AdminClient from './AdminClient'
 
 export const metadata: Metadata = {
@@ -31,9 +31,11 @@ export default async function AdminPage() {
 
   const settings = {
     registrationEnabled: isRegistrationEnabled(),
+    invitationRequired: isInvitationRequired(),
   }
 
   const users = getAllUsers()
+  const invitationCodes = listInvitationCodes()
 
-  return <AdminClient dict={dict} initialSettings={settings} initialUsers={users} />
+  return <AdminClient dict={dict} initialSettings={settings} initialUsers={users} initialInvitationCodes={invitationCodes} />
 }

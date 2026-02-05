@@ -34,7 +34,10 @@
     "confirmNewPasswordPlaceholder": "请再次输入新密码",
     "passwordChanged": "密码修改成功",
     "passwordMismatch": "两次输入的密码不一致",
-    "changePasswordButton": "修改密码"
+    "changePasswordButton": "修改密码",
+    "invitationCode": "邀请码",
+    "invitationCodePlaceholder": "请输入邀请码",
+    "invitationCodeRequired": "需要邀请码才能注册"
   },
   "converter": {
     "title": "HTML 转 PNG",
@@ -92,11 +95,34 @@
     "registrationHint": "允许新用户注册账号",
     "registrationOpen": "注册已开放",
     "registrationClosed": "注册已关闭",
+    "invitationRequired": "需要邀请码",
+    "invitationRequiredHint": "仅允许持有有效邀请码的用户注册",
+    "invitationRequiredOn": "需要邀请码",
+    "invitationRequiredOff": "开放注册",
+    "invitationCodes": "邀请码管理",
+    "createInvitation": "创建邀请码",
+    "invitationName": "名称（可选）",
+    "invitationNamePlaceholder": "例如：给张三",
+    "maxUses": "最大使用次数",
+    "maxUsesHint": "0 = 无限制",
+    "expiresAt": "过期时间",
+    "noExpiry": "永不过期",
+    "noInvitations": "暂无邀请码",
+    "code": "邀请码",
+    "uses": "使用次数",
+    "status": "状态",
+    "active": "有效",
+    "inactive": "已禁用",
+    "expired": "已过期",
+    "exhausted": "已用完",
+    "invitedBy": "邀请码:",
+    "noInvitation": "直接注册",
     "users": "用户列表",
     "total": "位用户",
     "noUsers": "暂无用户",
     "joined": "注册于:",
     "delete": "删除",
-    "confirmDelete": "确定要删除此用户吗？此操作不可撤销。"
+    "confirmDelete": "确定要删除此用户吗？此操作不可撤销。",
+    "confirmDeleteInvitation": "确定要删除此邀请码吗？"
   }
 }

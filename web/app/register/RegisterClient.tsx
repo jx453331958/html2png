@@ -8,13 +8,15 @@ import { Dictionary } from '@/lib/i18n'
 interface RegisterClientProps {
   dict: Dictionary
   registrationEnabled: boolean
+  invitationRequired: boolean
 }
 
-export default function RegisterClient({ dict, registrationEnabled }: RegisterClientProps) {
+export default function RegisterClient({ dict, registrationEnabled, invitationRequired }: RegisterClientProps) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [invitationCode, setInvitationCode] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -32,13 +34,22 @@ export default function RegisterClient({ dict, registrationEnabled }: RegisterCl
       return
     }
 
+    if (invitationRequired && !invitationCode.trim()) {
+      setError(dict.auth.invitationCodeRequired)
+      return
+    }
+
     setLoading(true)
 
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+          invitationCode: invitationCode.trim() || undefined,
+        }),
       })
 
       const data = await response.json()
@@ -133,6 +144,24 @@ export default function RegisterClient({ dict, registrationEnabled }: RegisterCl
                     placeholder={dict.auth.confirmPasswordPlaceholder}
                   />
                 </div>
+
+                {invitationRequired && (
+                  <div>
+                    <label className="cyber-label flex items-center gap-2">
+                      {dict.auth.invitationCode}
+                      <span className="text-fuchsia-400 text-xs">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={invitationCode}
+                      onChange={(e) => setInvitationCode(e.target.value.toUpperCase())}
+                      required
+                      className="cyber-input font-mono tracking-wider"
+                      placeholder={dict.auth.invitationCodePlaceholder}
+                      maxLength={8}
+                    />
+                  </div>
+                )}
 
                 {error && <div className="cyber-error">{error}</div>}
 

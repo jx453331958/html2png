@@ -70,18 +70,24 @@ export async function initializeAdmin(): Promise<void> {
   console.log(`Admin account created: ${adminEmail}`)
 }
 
-export async function createUser(email: string, password: string, isAdmin = false): Promise<User> {
+export async function createUser(
+  email: string,
+  password: string,
+  isAdmin = false,
+  invitationCode?: string
+): Promise<User> {
   const db = getDb()
   const passwordHash = await hashPassword(password)
 
-  const stmt = db.prepare('INSERT INTO users (email, password_hash, is_admin) VALUES (?, ?, ?)')
-  const result = stmt.run(email, passwordHash, isAdmin ? 1 : 0)
+  const stmt = db.prepare('INSERT INTO users (email, password_hash, is_admin, invited_by_code) VALUES (?, ?, ?, ?)')
+  const result = stmt.run(email, passwordHash, isAdmin ? 1 : 0, invitationCode || null)
 
   return {
     id: result.lastInsertRowid as number,
     email,
     password_hash: passwordHash,
     is_admin: isAdmin ? 1 : 0,
+    invited_by_code: invitationCode || null,
     created_at: new Date().toISOString(),
   }
 }

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getDictionary, Locale } from '@/lib/i18n'
 import { getCurrentUser } from '@/lib/auth'
-import { isRegistrationEnabled } from '@/lib/db'
+import { isRegistrationEnabled, isInvitationRequired } from '@/lib/db'
 import RegisterClient from './RegisterClient'
 
 export const metadata: Metadata = {
@@ -21,6 +21,7 @@ export default async function RegisterPage() {
   const locale = (cookieStore.get('locale')?.value || 'en') as Locale
   const dict = getDictionary(locale)
   const registrationEnabled = isRegistrationEnabled()
+  const invitationRequired = isInvitationRequired()
 
-  return <RegisterClient dict={dict} registrationEnabled={registrationEnabled} />
+  return <RegisterClient dict={dict} registrationEnabled={registrationEnabled} invitationRequired={invitationRequired} />
 }
