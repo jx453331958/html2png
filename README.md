@@ -36,6 +36,18 @@ The script will guide you through:
 3. Configuring server port
 4. Building and starting the Docker container
 
+### Update to Latest Version
+
+```bash
+./update.sh
+```
+
+The update script will:
+- Check for new updates from the repository
+- Show changelog of new commits
+- Pull latest changes and rebuild Docker container
+- Preserve your existing configuration
+
 ### Manual Docker Deployment
 
 ```bash
