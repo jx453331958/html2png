@@ -1,109 +1,18 @@
-'use client'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { getDictionary, Locale } from '@/lib/i18n'
+import { getCurrentUser } from '@/lib/auth'
+import LoginClient from './LoginClient'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-
-export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-      if (!response.ok) {
-        setError(data.error || 'Login failed')
-        return
-      }
-
-      router.push('/')
-      router.refresh()
-    } catch {
-      setError('Network error')
-    } finally {
-      setLoading(false)
-    }
+export default async function LoginPage() {
+  const user = await getCurrentUser()
+  if (user) {
+    redirect('/')
   }
 
-  return (
-    <div className="min-h-[calc(100vh-70px)] flex items-center justify-center px-6">
-      <div className="w-full max-w-md">
-        <div className="glass-card p-10 slide-up relative">
-          {/* Corner decorations */}
-          <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-cyber-cyan/30" />
-          <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-fuchsia-500/30" />
+  const cookieStore = await cookies()
+  const locale = (cookieStore.get('locale')?.value || 'en') as Locale
+  const dict = getDictionary(locale)
 
-          <div className="text-center mb-10">
-            <Link href="/" className="font-orbitron text-3xl font-extrabold neon-text">
-              HTML2PNG
-            </Link>
-            <h1 className="font-orbitron text-xl font-semibold mt-6 tracking-wider">LOGIN</h1>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="cyber-label">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="cyber-input"
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <div>
-              <label className="cyber-label">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="cyber-input"
-                placeholder="Enter your password"
-              />
-            </div>
-
-            {error && <div className="cyber-error">{error}</div>}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="cyber-btn w-full flex items-center justify-center gap-3"
-            >
-              {loading ? (
-                <span className="cyber-spinner" />
-              ) : (
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-              )}
-              Login
-            </button>
-          </form>
-
-          <p className="text-center mt-8 text-zinc-400">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-cyber-cyan hover:underline font-medium">
-              Register
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
-  )
+  return <LoginClient dict={dict} />
 }

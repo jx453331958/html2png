@@ -25,7 +25,7 @@ export default async function RootLayout({
   const user = await getCurrentUser()
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body className="min-h-screen">
         <Background />
         <Navbar dict={dict} locale={locale} user={user} />
