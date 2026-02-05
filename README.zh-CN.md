@@ -19,46 +19,59 @@
 
 ## 快速开始
 
-### Docker 部署（推荐）
+### 一键部署（推荐）
 
-1. 克隆仓库：
 ```bash
-git clone https://github.com/yourusername/html2png.git
-cd html2png/docker
+# 克隆仓库
+git clone git@github.com:jx453331958/html2png.git
+cd html2png
+
+# 运行部署脚本
+./deploy.sh
 ```
 
-2. 创建 `.env` 配置文件：
-```bash
-# 必填
-JWT_SECRET=你的安全随机密钥
+脚本会引导你完成以下配置：
+1. 设置 JWT 密钥（留空则自动生成）
+2. 创建管理员账号
+3. 配置服务端口
+4. 构建并启动 Docker 容器
 
-# 管理员账号（首次启动时创建）
+### 手动 Docker 部署
+
+```bash
+# 克隆仓库
+git clone git@github.com:jx453331958/html2png.git
+cd html2png/docker
+
+# 创建 .env 文件
+cat > .env << EOF
+JWT_SECRET=你的安全随机密钥
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=你的安全密码
-```
+EOF
 
-3. 启动服务：
-```bash
+# 启动服务
 docker-compose up -d
 ```
-
-4. 访问 `http://localhost:3000`
-
-5. 使用管理员账号登录，如需开放用户注册，请在管理后台中开启。
 
 ### 本地开发
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/html2png.git
+git clone git@github.com:jx453331958/html2png.git
 cd html2png/web
 
 # 安装依赖
 npm install
 
 # 创建 .env 文件
-cp ../.env.example .env
-# 编辑 .env 配置
+cat > .env << EOF
+PORT=3000
+HOST=0.0.0.0
+JWT_SECRET=dev-secret-key
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=change-this-password
+EOF
 
 # 启动开发服务器
 npm run dev
@@ -66,14 +79,14 @@ npm run dev
 
 ## 配置说明
 
-环境变量（参见 `.env.example`）：
+环境变量：
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | PORT | 3000 | 服务端口 |
 | HOST | 0.0.0.0 | 服务主机 |
-| JWT_SECRET | - | JWT 签名密钥（生产环境必须设置） |
-| ADMIN_EMAIL | - | 管理员账号邮箱（首次启动时创建） |
+| JWT_SECRET | - | JWT 签名密钥（必填） |
+| ADMIN_EMAIL | - | 管理员账号邮箱 |
 | ADMIN_PASSWORD | - | 管理员账号密码 |
 | DATABASE_PATH | ./data/html2png.db | SQLite 数据库路径 |
 | RATE_LIMIT_MAX | 100 | 时间窗口内最大请求数 |
@@ -83,9 +96,9 @@ npm run dev
 
 ### 认证方式
 
-所有 API 接口（健康检查除外）需要通过以下方式之一进行认证：
-- **JWT Token**: 在请求头中传入 `Authorization: Bearer <token>`
-- **API Key**: 在请求头中传入 `X-API-Key: <key>`
+所有 API 接口需要通过以下方式之一进行认证：
+- **JWT Token**: 请求头 `Authorization: Bearer <token>`
+- **API Key**: 请求头 `X-API-Key: <key>`
 
 ### 接口列表
 
@@ -138,27 +151,11 @@ X-API-Key: h2p_your_api_key
 
 **响应:** PNG 图片二进制数据
 
-#### 获取 API 密钥列表
+#### API 密钥管理
 ```http
-GET /api/keys
-Authorization: Bearer <token>
-```
-
-#### 创建 API 密钥
-```http
-POST /api/keys
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "name": "我的应用密钥"
-}
-```
-
-#### 删除 API 密钥
-```http
-DELETE /api/keys/:id
-Authorization: Bearer <token>
+GET    /api/keys          # 获取密钥列表
+POST   /api/keys          # 创建密钥
+DELETE /api/keys/:id      # 删除密钥
 ```
 
 ## 使用示例
@@ -176,7 +173,7 @@ curl -X POST http://localhost:3000/api/convert \
   --output screenshot.png
 ```
 
-### JavaScript (Node.js)
+### JavaScript
 ```javascript
 const response = await fetch('http://localhost:3000/api/convert', {
   method: 'POST',

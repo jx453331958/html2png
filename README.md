@@ -19,46 +19,59 @@ A self-hosted service to convert HTML content to high-quality PNG images.
 
 ## Quick Start
 
-### Docker Deployment (Recommended)
+### One-Click Deployment (Recommended)
 
-1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/html2png.git
-cd html2png/docker
+# Clone the repository
+git clone git@github.com:jx453331958/html2png.git
+cd html2png
+
+# Run the deployment script
+./deploy.sh
 ```
 
-2. Create `.env` file with your configuration:
-```bash
-# Required
-JWT_SECRET=your-secure-random-secret-key
+The script will guide you through:
+1. Setting up JWT secret (auto-generated if left empty)
+2. Creating admin account credentials
+3. Configuring server port
+4. Building and starting the Docker container
 
-# Admin account (created on first startup)
+### Manual Docker Deployment
+
+```bash
+# Clone the repository
+git clone git@github.com:jx453331958/html2png.git
+cd html2png/docker
+
+# Create .env file
+cat > .env << EOF
+JWT_SECRET=your-secure-random-secret-key
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=your-secure-password
-```
+EOF
 
-3. Start the service:
-```bash
+# Start the service
 docker-compose up -d
 ```
-
-4. Access the service at `http://localhost:3000`
-
-5. Login with your admin account and enable user registration in the Admin panel if needed.
 
 ### Local Development
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/html2png.git
+git clone git@github.com:jx453331958/html2png.git
 cd html2png/web
 
 # Install dependencies
 npm install
 
 # Create .env file
-cp ../.env.example .env
-# Edit .env with your settings
+cat > .env << EOF
+PORT=3000
+HOST=0.0.0.0
+JWT_SECRET=dev-secret-key
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=change-this-password
+EOF
 
 # Start development server
 npm run dev
@@ -66,14 +79,14 @@ npm run dev
 
 ## Configuration
 
-Environment variables (see `.env.example`):
+Environment variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | PORT | 3000 | Server port |
 | HOST | 0.0.0.0 | Server host |
-| JWT_SECRET | - | Secret for JWT signing (required in production) |
-| ADMIN_EMAIL | - | Admin account email (created on first startup) |
+| JWT_SECRET | - | Secret for JWT signing (required) |
+| ADMIN_EMAIL | - | Admin account email |
 | ADMIN_PASSWORD | - | Admin account password |
 | DATABASE_PATH | ./data/html2png.db | SQLite database path |
 | RATE_LIMIT_MAX | 100 | Max requests per window |
@@ -83,9 +96,9 @@ Environment variables (see `.env.example`):
 
 ### Authentication
 
-All API endpoints (except health check) require authentication via:
-- **JWT Token**: Pass in `Authorization: Bearer <token>` header
-- **API Key**: Pass in `X-API-Key: <key>` header
+All API endpoints require authentication via:
+- **JWT Token**: `Authorization: Bearer <token>` header
+- **API Key**: `X-API-Key: <key>` header
 
 ### Endpoints
 
@@ -138,27 +151,11 @@ X-API-Key: h2p_your_api_key
 
 **Response:** PNG image binary
 
-#### List API Keys
+#### API Keys Management
 ```http
-GET /api/keys
-Authorization: Bearer <token>
-```
-
-#### Create API Key
-```http
-POST /api/keys
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "name": "My App Key"
-}
-```
-
-#### Delete API Key
-```http
-DELETE /api/keys/:id
-Authorization: Bearer <token>
+GET    /api/keys          # List API keys
+POST   /api/keys          # Create API key
+DELETE /api/keys/:id      # Delete API key
 ```
 
 ## Usage Examples
@@ -176,7 +173,7 @@ curl -X POST http://localhost:3000/api/convert \
   --output screenshot.png
 ```
 
-### JavaScript (Node.js)
+### JavaScript
 ```javascript
 const response = await fetch('http://localhost:3000/api/convert', {
   method: 'POST',
