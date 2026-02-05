@@ -155,7 +155,9 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
   }
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString()
+    // SQLite stores UTC time without timezone indicator, append 'Z' to parse as UTC
+    const utcDateStr = dateStr.endsWith('Z') ? dateStr : dateStr.replace(' ', 'T') + 'Z'
+    return new Date(utcDateStr).toLocaleDateString()
   }
 
   const getInvitationStatus = (code: InvitationCode): { label: string; color: string } => {

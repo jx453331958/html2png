@@ -194,7 +194,9 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
   }
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
+    // SQLite stores UTC time without timezone indicator, append 'Z' to parse as UTC
+    const utcDateStr = dateStr.endsWith('Z') ? dateStr : dateStr.replace(' ', 'T') + 'Z'
+    const date = new Date(utcDateStr)
     return date.toLocaleString(undefined, {
       year: 'numeric',
       month: '2-digit',

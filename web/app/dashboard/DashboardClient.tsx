@@ -119,7 +119,9 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '-'
-    return new Date(dateStr).toLocaleDateString()
+    // SQLite stores UTC time without timezone indicator, append 'Z' to parse as UTC
+    const utcDateStr = dateStr.endsWith('Z') ? dateStr : dateStr.replace(' ', 'T') + 'Z'
+    return new Date(utcDateStr).toLocaleDateString()
   }
 
   return (
