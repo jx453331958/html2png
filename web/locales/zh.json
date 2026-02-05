@@ -4,7 +4,8 @@
     "register": "注册",
     "logout": "退出",
     "dashboard": "控制台",
-    "converter": "转换器"
+    "converter": "转换器",
+    "admin": "管理"
   },
   "auth": {
     "login": "登录",
@@ -21,7 +22,9 @@
     "noAccount": "还没有账号？",
     "hasAccount": "已有账号？",
     "loginLink": "登录",
-    "registerLink": "注册"
+    "registerLink": "注册",
+    "registrationDisabled": "注册功能暂未开放",
+    "registrationDisabledHint": "请联系管理员获取访问权限"
   },
   "converter": {
     "title": "HTML 转 PNG",
@@ -58,5 +61,19 @@
     "copy": "复制到剪贴板",
     "copied": "已复制！",
     "confirmDelete": "确定要删除这个 API 密钥吗？"
+  },
+  "admin": {
+    "title": "管理后台",
+    "settings": "系统设置",
+    "registration": "用户注册",
+    "registrationHint": "允许新用户注册账号",
+    "registrationOpen": "注册已开放",
+    "registrationClosed": "注册已关闭",
+    "users": "用户列表",
+    "total": "位用户",
+    "noUsers": "暂无用户",
+    "joined": "注册于:",
+    "delete": "删除",
+    "confirmDelete": "确定要删除此用户吗？此操作不可撤销。"
   }
 }

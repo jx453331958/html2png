@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       fullPage: Boolean(fullPage),
     })
 
-    return new NextResponse(png, {
+    return new NextResponse(new Uint8Array(png), {
       headers: {
         'Content-Type': 'image/png',
         'Content-Disposition': 'attachment; filename="screenshot.png"',

@@ -12,6 +12,7 @@ const KEY_PREFIX = 'h2p_'
 export interface JWTPayload {
   id: number
   email: string
+  isAdmin: boolean
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -45,17 +46,42 @@ export async function getCurrentUser(): Promise<JWTPayload | null> {
   return verifyToken(token)
 }
 
-export async function createUser(email: string, password: string): Promise<User> {
+// Initialize admin account from environment variables
+export async function initializeAdmin(): Promise<void> {
+  const adminEmail = process.env.ADMIN_EMAIL
+  const adminPassword = process.env.ADMIN_PASSWORD
+
+  if (!adminEmail || !adminPassword) {
+    return
+  }
+
+  const db = getDb()
+  const existingAdmin = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail) as { id: number } | undefined
+
+  if (existingAdmin) {
+    // Ensure existing user is marked as admin
+    db.prepare('UPDATE users SET is_admin = 1 WHERE email = ?').run(adminEmail)
+    return
+  }
+
+  // Create new admin account
+  const passwordHash = await hashPassword(adminPassword)
+  db.prepare('INSERT INTO users (email, password_hash, is_admin) VALUES (?, ?, 1)').run(adminEmail, passwordHash)
+  console.log(`Admin account created: ${adminEmail}`)
+}
+
+export async function createUser(email: string, password: string, isAdmin = false): Promise<User> {
   const db = getDb()
   const passwordHash = await hashPassword(password)
 
-  const stmt = db.prepare('INSERT INTO users (email, password_hash) VALUES (?, ?)')
-  const result = stmt.run(email, passwordHash)
+  const stmt = db.prepare('INSERT INTO users (email, password_hash, is_admin) VALUES (?, ?, ?)')
+  const result = stmt.run(email, passwordHash, isAdmin ? 1 : 0)
 
   return {
     id: result.lastInsertRowid as number,
     email,
     password_hash: passwordHash,
+    is_admin: isAdmin ? 1 : 0,
     created_at: new Date().toISOString(),
   }
 }
@@ -77,6 +103,11 @@ export function getUserById(id: number): User | null {
   const db = getDb()
   const stmt = db.prepare('SELECT * FROM users WHERE id = ?')
   return stmt.get(id) as User | null
+}
+
+export function isUserAdmin(userId: number): boolean {
+  const user = getUserById(userId)
+  return user?.is_admin === 1
 }
 
 // API Key functions
@@ -108,7 +139,16 @@ export function createApiKey(userId: number, name?: string): { id: number; key: 
   }
 }
 
-export function listApiKeys(userId: number) {
+interface ApiKeyInfo {
+  id: number
+  key_prefix: string
+  name: string | null
+  created_at: string
+  last_used_at: string | null
+  is_active: number
+}
+
+export function listApiKeys(userId: number): ApiKeyInfo[] {
   const db = getDb()
   const stmt = db.prepare(`
     SELECT id, key_prefix, name, created_at, last_used_at, is_active
@@ -116,7 +156,7 @@ export function listApiKeys(userId: number) {
     WHERE user_id = ? AND is_active = 1
     ORDER BY created_at DESC
   `)
-  return stmt.all(userId)
+  return stmt.all(userId) as ApiKeyInfo[]
 }
 
 export function deleteApiKey(userId: number, keyId: number): boolean {
@@ -136,12 +176,12 @@ export async function verifyApiKey(key: string): Promise<JWTPayload | null> {
   const keyHash = hashApiKey(key)
 
   const stmt = db.prepare(`
-    SELECT ak.id, ak.user_id, u.email
+    SELECT ak.id, ak.user_id, u.email, u.is_admin
     FROM api_keys ak
     JOIN users u ON ak.user_id = u.id
     WHERE ak.key_hash = ? AND ak.is_active = 1
   `)
-  const result = stmt.get(keyHash) as { id: number; user_id: number; email: string } | undefined
+  const result = stmt.get(keyHash) as { id: number; user_id: number; email: string; is_admin: number } | undefined
 
   if (!result) return null
 
@@ -149,7 +189,7 @@ export async function verifyApiKey(key: string): Promise<JWTPayload | null> {
   const updateStmt = db.prepare('UPDATE api_keys SET last_used_at = CURRENT_TIMESTAMP WHERE id = ?')
   updateStmt.run(result.id)
 
-  return { id: result.user_id, email: result.email }
+  return { id: result.user_id, email: result.email, isAdmin: result.is_admin === 1 }
 }
 
 export async function getAuthUser(request: Request): Promise<JWTPayload | null> {

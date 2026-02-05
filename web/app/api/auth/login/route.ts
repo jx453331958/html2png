@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 })
     }
 
-    const token = await createToken({ id: user.id, email: user.email })
+    const token = await createToken({ id: user.id, email: user.email, isAdmin: user.is_admin === 1 })
 
     const cookieStore = await cookies()
     cookieStore.set('token', token, {

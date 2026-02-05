@@ -7,7 +7,7 @@ import { Dictionary } from '@/lib/i18n'
 interface NavbarProps {
   dict: Dictionary
   locale: string
-  user: { email: string } | null
+  user: { email: string; isAdmin?: boolean } | null
 }
 
 export default function Navbar({ dict, locale, user }: NavbarProps) {
@@ -64,9 +64,22 @@ export default function Navbar({ dict, locale, user }: NavbarProps) {
               >
                 {dict.nav.dashboard}
               </Link>
+              {user.isAdmin && (
+                <Link
+                  href="/admin"
+                  className="font-orbitron text-xs font-medium tracking-wider uppercase text-fuchsia-400 hover:text-fuchsia-300 px-3 py-2 rounded transition-all hover:bg-fuchsia-500/10"
+                >
+                  {dict.nav.admin}
+                </Link>
+              )}
               <div className="flex items-center gap-2 px-3 py-1.5 bg-black/30 border border-white/[0.08] rounded-full text-sm text-zinc-400">
-                <span className="w-2 h-2 bg-green-400 rounded-full shadow-[0_0_10px_#00ff88]" />
+                <span className={`w-2 h-2 rounded-full ${user.isAdmin ? 'bg-fuchsia-400 shadow-[0_0_10px_#ff00ff]' : 'bg-green-400 shadow-[0_0_10px_#00ff88]'}`} />
                 {user.email}
+                {user.isAdmin && (
+                  <span className="ml-1 px-1.5 py-0.5 text-[9px] font-orbitron font-bold bg-fuchsia-500/20 text-fuchsia-400 rounded">
+                    ADMIN
+                  </span>
+                )}
               </div>
               <button
                 onClick={handleLogout}

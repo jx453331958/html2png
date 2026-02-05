@@ -4,7 +4,7 @@ import './globals.css'
 import Background from '@/components/Background'
 import Navbar from '@/components/Navbar'
 import { getDictionary, Locale } from '@/lib/i18n'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, initializeAdmin } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'HTML2PNG - Convert HTML to High-Quality Images',
@@ -16,6 +16,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Initialize admin account from env if not exists
+  await initializeAdmin()
+
   const cookieStore = await cookies()
   const locale = (cookieStore.get('locale')?.value || 'en') as Locale
   const dict = getDictionary(locale)

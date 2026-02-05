@@ -17,6 +17,9 @@ services:
       - DATABASE_PATH=/app/data/html2png.db
       - RATE_LIMIT_MAX=100
       - RATE_LIMIT_WINDOW_MS=60000
+      # Admin account - set these to create the initial admin user
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-change-this-password}
     volumes:
       - html2png-data:/app/data
     deploy:

@@ -4,7 +4,8 @@
     "register": "Register",
     "logout": "Logout",
     "dashboard": "Dashboard",
-    "converter": "Converter"
+    "converter": "Converter",
+    "admin": "Admin"
   },
   "auth": {
     "login": "Login",
@@ -21,7 +22,9 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "loginLink": "Login",
-    "registerLink": "Register"
+    "registerLink": "Register",
+    "registrationDisabled": "Registration is currently disabled",
+    "registrationDisabledHint": "Please contact administrator for access"
   },
   "converter": {
     "title": "HTML to PNG",
@@ -58,5 +61,19 @@
     "copy": "Copy to Clipboard",
     "copied": "Copied!",
     "confirmDelete": "Are you sure you want to delete this API key?"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "settings": "System Settings",
+    "registration": "User Registration",
+    "registrationHint": "Allow new users to register accounts",
+    "registrationOpen": "Registration is open",
+    "registrationClosed": "Registration is closed",
+    "users": "Users",
+    "total": "total",
+    "noUsers": "No users found",
+    "joined": "Joined:",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this user? This action cannot be undone."
   }
 }
