@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "converter": "Converter"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "passwordHint": "At least 8 characters",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginLink": "Login",
+    "registerLink": "Register"
+  },
+  "converter": {
+    "title": "HTML to PNG",
+    "subtitle": "Convert your HTML content to high-quality PNG images",
+    "htmlInput": "HTML Input",
+    "placeholder": "Enter your HTML here...",
+    "width": "Width (px)",
+    "height": "Height (px)",
+    "autoHeight": "Auto",
+    "dpr": "Pixel Ratio",
+    "fullPage": "Full Page",
+    "convert": "Convert to PNG",
+    "converting": "Converting...",
+    "preview": "Preview",
+    "noPreview": "Preview will appear here",
+    "download": "Download PNG",
+    "loginRequired": "Please login to use the converter"
+  },
+  "dashboard": {
+    "title": "API Keys",
+    "createKey": "Create New API Key",
+    "keyNamePlaceholder": "Key name (optional)",
+    "create": "Create",
+    "keyHint": "Give your key a name to remember what it's used for",
+    "yourKeys": "Your API Keys",
+    "noKeys": "No API keys yet. Create one to get started.",
+    "unnamed": "Unnamed Key",
+    "created": "Created:",
+    "lastUsed": "Last used:",
+    "delete": "Delete",
+    "usage": "API Usage",
+    "keyCreated": "API Key Created!",
+    "keyWarning": "Make sure to copy your API key now. You won't be able to see it again!",
+    "copy": "Copy to Clipboard",
+    "copied": "Copied!",
+    "confirmDelete": "Are you sure you want to delete this API key?"
+  }
+}
