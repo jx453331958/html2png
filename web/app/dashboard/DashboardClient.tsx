@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { Dictionary } from '@/lib/i18n'
 
 interface ApiKey {
@@ -12,13 +11,23 @@ interface ApiKey {
   last_used_at: string | null
 }
 
+interface Conversion {
+  id: number
+  html_preview: string | null
+  width: number
+  height: number | null
+  dpr: number
+  full_page: number
+  file_size: number | null
+  created_at: string
+}
+
 interface DashboardClientProps {
   dict: Dictionary
   initialKeys: ApiKey[]
 }
 
 export default function DashboardClient({ dict, initialKeys }: DashboardClientProps) {
-  const router = useRouter()
   const [keys, setKeys] = useState<ApiKey[]>(initialKeys)
   const [newKeyName, setNewKeyName] = useState('')
   const [newKey, setNewKey] = useState<string | null>(null)
@@ -26,10 +35,48 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
 
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+
+  // Conversion history state
+  const [conversions, setConversions] = useState<Conversion[]>([])
+  const [conversionsTotal, setConversionsTotal] = useState(0)
+  const [conversionsLoading, setConversionsLoading] = useState(false)
+  const [conversionsOffset, setConversionsOffset] = useState(0)
+  const conversionsLimit = 10
+
+  useEffect(() => {
+    loadConversions()
+  }, [])
+
   const loadKeys = async () => {
     const response = await fetch('/api/keys')
     const data = await response.json()
     setKeys(data.keys || [])
+  }
+
+  const loadConversions = async (offset = 0) => {
+    setConversionsLoading(true)
+    try {
+      const response = await fetch(`/api/conversions?limit=${conversionsLimit}&offset=${offset}`)
+      const data = await response.json()
+      if (offset === 0) {
+        setConversions(data.conversions || [])
+      } else {
+        setConversions(prev => [...prev, ...(data.conversions || [])])
+      }
+      setConversionsTotal(data.total || 0)
+      setConversionsOffset(offset)
+    } catch {
+      console.error('Failed to load conversions')
+    } finally {
+      setConversionsLoading(false)
+    }
   }
 
   const createKey = async () => {
@@ -66,6 +113,17 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
     }
   }
 
+  const deleteConversion = async (id: number) => {
+    if (!confirm(dict.dashboard.confirmDeleteHistory)) return
+    try {
+      await fetch(`/api/conversions/${id}`, { method: 'DELETE' })
+      setConversions(prev => prev.filter(c => c.id !== id))
+      setConversionsTotal(prev => prev - 1)
+    } catch {
+      console.error('Failed to delete conversion')
+    }
+  }
+
   const copyKey = async () => {
     if (newKey) {
       await navigator.clipboard.writeText(newKey)
@@ -74,9 +132,53 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
     }
   }
 
+  const changePassword = async () => {
+    setPasswordError('')
+    setPasswordSuccess('')
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError(dict.auth.passwordMismatch)
+      return
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError(dict.auth.passwordHint)
+      return
+    }
+
+    setPasswordLoading(true)
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        setPasswordError(data.error || 'Failed to change password')
+        return
+      }
+      setPasswordSuccess(dict.auth.passwordChanged)
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch {
+      setPasswordError('Failed to change password')
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '-'
     return new Date(dateStr).toLocaleDateString()
+  }
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return '-'
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`
   }
 
   return (
@@ -88,8 +190,62 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
         </h1>
       </div>
 
-      {/* Create API Key */}
+      {/* Change Password */}
       <div className="glass-card p-7 mb-8 slide-up stagger-1">
+        <div className="section-header">
+          <div className="section-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <span className="section-title">{dict.auth.changePassword}</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            className="cyber-input"
+            placeholder={dict.auth.currentPasswordPlaceholder}
+          />
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="cyber-input"
+            placeholder={dict.auth.newPasswordPlaceholder}
+          />
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="cyber-input"
+            placeholder={dict.auth.confirmNewPasswordPlaceholder}
+          />
+        </div>
+
+        {passwordError && <p className="text-red-400 text-sm mt-3">{passwordError}</p>}
+        {passwordSuccess && <p className="text-green-400 text-sm mt-3">{passwordSuccess}</p>}
+
+        <button
+          onClick={changePassword}
+          disabled={passwordLoading || !currentPassword || !newPassword || !confirmPassword}
+          className="cyber-btn mt-4 flex items-center gap-3"
+        >
+          {passwordLoading ? (
+            <span className="cyber-spinner" />
+          ) : (
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+          {dict.auth.changePasswordButton}
+        </button>
+      </div>
+
+      {/* Create API Key */}
+      <div className="glass-card p-7 mb-8 slide-up stagger-2">
         <div className="section-header">
           <div className="section-icon">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +284,7 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
       {error && <div className="cyber-error mb-6">{error}</div>}
 
       {/* API Keys List */}
-      <div className="glass-card slide-up stagger-2">
+      <div className="glass-card slide-up stagger-3">
         <div className="p-5 border-b border-white/[0.08]">
           <div className="section-header !mb-0 !pb-0 !border-0">
             <div className="section-icon">
@@ -178,8 +334,81 @@ export default function DashboardClient({ dict, initialKeys }: DashboardClientPr
         )}
       </div>
 
+      {/* Conversion History */}
+      <div className="glass-card mt-8 slide-up stagger-4">
+        <div className="p-5 border-b border-white/[0.08]">
+          <div className="section-header !mb-0 !pb-0 !border-0">
+            <div className="section-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span className="section-title">{dict.dashboard.history}</span>
+            <span className="ml-auto text-sm text-zinc-500">{conversionsTotal} {dict.dashboard.total}</span>
+          </div>
+        </div>
+
+        {conversions.length === 0 ? (
+          <div className="p-16 text-center">
+            <svg className="w-12 h-12 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-zinc-500 font-orbitron text-xs tracking-wider">{dict.dashboard.noHistory}</p>
+          </div>
+        ) : (
+          <div>
+            {conversions.map((conversion) => (
+              <div
+                key={conversion.id}
+                className="flex items-center justify-between p-5 border-b border-white/[0.08] last:border-0 hover:bg-cyber-cyan/[0.02] transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-xs text-zinc-400">{formatDate(conversion.created_at)}</span>
+                    {conversion.full_page === 1 && (
+                      <span className="text-xs px-2 py-0.5 bg-cyber-cyan/20 text-cyber-cyan rounded">
+                        {dict.dashboard.fullPageYes}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-zinc-300 truncate mb-1.5" title={conversion.html_preview || ''}>
+                    {conversion.html_preview || '-'}
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    {dict.dashboard.dimensions}: {conversion.width}×{conversion.height || 'auto'} @{conversion.dpr}x
+                    <span className="ml-4">{dict.dashboard.fileSize}: {formatFileSize(conversion.file_size)}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => deleteConversion(conversion.id)}
+                  className="cyber-btn cyber-btn-danger !py-2 !px-4 !text-xs ml-4"
+                >
+                  {dict.dashboard.delete}
+                </button>
+              </div>
+            ))}
+
+            {conversions.length < conversionsTotal && (
+              <div className="p-5 text-center">
+                <button
+                  onClick={() => loadConversions(conversionsOffset + conversionsLimit)}
+                  disabled={conversionsLoading}
+                  className="cyber-btn !py-2 !px-6 !text-sm"
+                >
+                  {conversionsLoading ? (
+                    <span className="cyber-spinner" />
+                  ) : (
+                    dict.dashboard.viewMore
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* API Usage */}
-      <div className="glass-card p-7 mt-8 slide-up stagger-3">
+      <div className="glass-card p-7 mt-8 slide-up stagger-5">
         <div className="section-header">
           <div className="section-icon">
             <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">

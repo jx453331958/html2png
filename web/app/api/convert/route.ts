@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/auth'
 import { convertHtmlToPng } from '@/lib/converter'
+import { saveConversion } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   const user = await getAuthUser(request)
@@ -16,13 +17,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'HTML content is required' }, { status: 400 })
     }
 
+    const actualWidth = width ? Math.min(Math.max(width, 100), 4096) : 1200
+    const actualHeight = height ? Math.min(Math.max(height, 100), 10000) : undefined
+    const actualDpr = [1, 2, 3].includes(dpr) ? dpr : 1
+    const actualFullPage = Boolean(fullPage)
+
     const png = await convertHtmlToPng({
       html,
-      width: width ? Math.min(Math.max(width, 100), 4096) : 1200,
-      height: height ? Math.min(Math.max(height, 100), 10000) : undefined,
-      dpr: [1, 2, 3].includes(dpr) ? dpr : 1,
-      fullPage: Boolean(fullPage),
+      width: actualWidth,
+      height: actualHeight,
+      dpr: actualDpr,
+      fullPage: actualFullPage,
     })
+
+    // Save conversion to history
+    try {
+      saveConversion(user.id, html, actualWidth, actualHeight ?? null, actualDpr, actualFullPage, png.length)
+    } catch (e) {
+      console.error('Failed to save conversion history:', e)
+    }
 
     return new NextResponse(new Uint8Array(png), {
       headers: {

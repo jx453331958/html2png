@@ -24,7 +24,17 @@
     "loginLink": "Login",
     "registerLink": "Register",
     "registrationDisabled": "Registration is currently disabled",
-    "registrationDisabledHint": "Please contact administrator for access"
+    "registrationDisabledHint": "Please contact administrator for access",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Enter current password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmNewPassword": "Confirm New Password",
+    "confirmNewPasswordPlaceholder": "Confirm new password",
+    "passwordChanged": "Password changed successfully",
+    "passwordMismatch": "Passwords do not match",
+    "changePasswordButton": "Change Password"
   },
   "converter": {
     "title": "HTML to PNG",
@@ -48,7 +58,8 @@
     "loginRequired": "Please login to use the converter"
   },
   "dashboard": {
-    "title": "API Keys",
+    "title": "Dashboard",
+    "apiKeys": "API Keys",
     "createKey": "Create New API Key",
     "keyNamePlaceholder": "Key name (optional)",
     "create": "Create",
@@ -64,7 +75,15 @@
     "keyWarning": "Make sure to copy your API key now. You won't be able to see it again!",
     "copy": "Copy to Clipboard",
     "copied": "Copied!",
-    "confirmDelete": "Are you sure you want to delete this API key?"
+    "confirmDelete": "Are you sure you want to delete this API key?",
+    "history": "Conversion History",
+    "noHistory": "No conversions yet",
+    "dimensions": "Dimensions",
+    "fileSize": "File Size",
+    "fullPageYes": "Full Page",
+    "viewMore": "View More",
+    "total": "total",
+    "confirmDeleteHistory": "Are you sure you want to delete this conversion record?"
   },
   "admin": {
     "title": "Admin Panel",

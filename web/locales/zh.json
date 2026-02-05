@@ -24,7 +24,17 @@
     "loginLink": "登录",
     "registerLink": "注册",
     "registrationDisabled": "注册功能暂未开放",
-    "registrationDisabledHint": "请联系管理员获取访问权限"
+    "registrationDisabledHint": "请联系管理员获取访问权限",
+    "changePassword": "修改密码",
+    "currentPassword": "当前密码",
+    "currentPasswordPlaceholder": "请输入当前密码",
+    "newPassword": "新密码",
+    "newPasswordPlaceholder": "请输入新密码",
+    "confirmNewPassword": "确认新密码",
+    "confirmNewPasswordPlaceholder": "请再次输入新密码",
+    "passwordChanged": "密码修改成功",
+    "passwordMismatch": "两次输入的密码不一致",
+    "changePasswordButton": "修改密码"
   },
   "converter": {
     "title": "HTML 转 PNG",
@@ -48,7 +58,8 @@
     "loginRequired": "请登录后使用转换功能"
   },
   "dashboard": {
-    "title": "API 密钥",
+    "title": "控制台",
+    "apiKeys": "API 密钥",
     "createKey": "创建新密钥",
     "keyNamePlaceholder": "密钥名称（可选）",
     "create": "创建",
@@ -64,7 +75,15 @@
     "keyWarning": "请务必现在复制你的 API 密钥。之后将无法再次查看！",
     "copy": "复制到剪贴板",
     "copied": "已复制！",
-    "confirmDelete": "确定要删除这个 API 密钥吗？"
+    "confirmDelete": "确定要删除这个 API 密钥吗？",
+    "history": "转换历史",
+    "noHistory": "暂无转换记录",
+    "dimensions": "尺寸",
+    "fileSize": "文件大小",
+    "fullPageYes": "全页截图",
+    "viewMore": "查看更多",
+    "total": "条记录",
+    "confirmDeleteHistory": "确定要删除这条转换记录吗？"
   },
   "admin": {
     "title": "管理后台",

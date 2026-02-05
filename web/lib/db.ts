@@ -44,6 +44,21 @@ function initSchema(db: Database.Database) {
 
     CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
     CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);
+
+    CREATE TABLE IF NOT EXISTS conversions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      html_preview TEXT,
+      width INTEGER,
+      height INTEGER,
+      dpr INTEGER DEFAULT 1,
+      full_page INTEGER DEFAULT 0,
+      file_size INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_conversions_user_id ON conversions(user_id);
   `)
 
   // Add is_admin column if it doesn't exist (for existing databases)
@@ -85,6 +100,18 @@ export interface SystemSetting {
   updated_at: string
 }
 
+export interface Conversion {
+  id: number
+  user_id: number
+  html_preview: string | null
+  width: number
+  height: number | null
+  dpr: number
+  full_page: number
+  file_size: number | null
+  created_at: string
+}
+
 // System settings functions
 export function getSetting(key: string): string | null {
   const db = getDb()
@@ -123,5 +150,63 @@ export function deleteUser(userId: number): boolean {
   const db = getDb()
   const stmt = db.prepare('DELETE FROM users WHERE id = ? AND is_admin = 0')
   const result = stmt.run(userId)
+  return result.changes > 0
+}
+
+// Conversion history functions
+export function saveConversion(
+  userId: number,
+  html: string,
+  width: number,
+  height: number | null,
+  dpr: number,
+  fullPage: boolean,
+  fileSize: number
+): number {
+  const db = getDb()
+  // Store first 500 characters of HTML as preview
+  const htmlPreview = html.length > 500 ? html.substring(0, 500) + '...' : html
+  const stmt = db.prepare(`
+    INSERT INTO conversions (user_id, html_preview, width, height, dpr, full_page, file_size)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `)
+  const result = stmt.run(userId, htmlPreview, width, height, dpr, fullPage ? 1 : 0, fileSize)
+  return result.lastInsertRowid as number
+}
+
+export interface ConversionInfo {
+  id: number
+  html_preview: string | null
+  width: number
+  height: number | null
+  dpr: number
+  full_page: number
+  file_size: number | null
+  created_at: string
+}
+
+export function listConversions(userId: number, limit = 50, offset = 0): ConversionInfo[] {
+  const db = getDb()
+  const stmt = db.prepare(`
+    SELECT id, html_preview, width, height, dpr, full_page, file_size, created_at
+    FROM conversions
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+    LIMIT ? OFFSET ?
+  `)
+  return stmt.all(userId, limit, offset) as ConversionInfo[]
+}
+
+export function getConversionCount(userId: number): number {
+  const db = getDb()
+  const stmt = db.prepare('SELECT COUNT(*) as count FROM conversions WHERE user_id = ?')
+  const result = stmt.get(userId) as { count: number }
+  return result.count
+}
+
+export function deleteConversion(userId: number, conversionId: number): boolean {
+  const db = getDb()
+  const stmt = db.prepare('DELETE FROM conversions WHERE id = ? AND user_id = ?')
+  const result = stmt.run(conversionId, userId)
   return result.changes > 0
 }

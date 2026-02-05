@@ -110,6 +110,29 @@ export function isUserAdmin(userId: number): boolean {
   return user?.is_admin === 1
 }
 
+export async function changePassword(
+  userId: number,
+  currentPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  const user = getUserById(userId)
+  if (!user) {
+    return { success: false, error: 'User not found' }
+  }
+
+  const valid = await verifyPassword(user.password_hash, currentPassword)
+  if (!valid) {
+    return { success: false, error: 'Current password is incorrect' }
+  }
+
+  const db = getDb()
+  const newPasswordHash = await hashPassword(newPassword)
+  const stmt = db.prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+  stmt.run(newPasswordHash, userId)
+
+  return { success: true }
+}
+
 // API Key functions
 function generateApiKey(): string {
   const randomBytes = crypto.randomBytes(32).toString('hex')
