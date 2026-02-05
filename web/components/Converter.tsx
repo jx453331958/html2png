@@ -29,6 +29,7 @@ const defaultHtml = `<!DOCTYPE html>
 interface Conversion {
   id: number
   html_preview: string | null
+  html_content: string | null
   width: number
   height: number | null
   dpr: number
@@ -167,8 +168,10 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
   }
 
   const loadFromHistory = (conversion: Conversion) => {
-    if (conversion.html_preview) {
-      setHtml(conversion.html_preview)
+    // Use full html_content for re-editing, fallback to html_preview
+    const htmlToLoad = conversion.html_content || conversion.html_preview
+    if (htmlToLoad) {
+      setHtml(htmlToLoad)
       setWidth(conversion.width)
       setHeight(conversion.height?.toString() || '')
       setDpr(conversion.dpr)
@@ -191,7 +194,15 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
   }
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString()
+    const date = new Date(dateStr)
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
   }
 
   const formatFileSize = (bytes: number | null) => {

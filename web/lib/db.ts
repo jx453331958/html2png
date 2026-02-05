@@ -88,6 +88,13 @@ function initSchema(db: Database.Database) {
     // Column already exists
   }
 
+  // Add html_content column if it doesn't exist (for storing full HTML)
+  try {
+    db.exec('ALTER TABLE conversions ADD COLUMN html_content TEXT')
+  } catch {
+    // Column already exists
+  }
+
   // Initialize default settings
   const insertSetting = db.prepare(`
     INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)
@@ -126,6 +133,7 @@ export interface Conversion {
   id: number
   user_id: number
   html_preview: string | null
+  html_content: string | null
   width: number
   height: number | null
   dpr: number
@@ -205,19 +213,20 @@ export function saveConversion(
   fileSize: number
 ): number {
   const db = getDb()
-  // Store first 500 characters of HTML as preview
+  // Store first 500 characters of HTML as preview, and full HTML for re-editing
   const htmlPreview = html.length > 500 ? html.substring(0, 500) + '...' : html
   const stmt = db.prepare(`
-    INSERT INTO conversions (user_id, html_preview, width, height, dpr, full_page, file_size)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO conversions (user_id, html_preview, html_content, width, height, dpr, full_page, file_size)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `)
-  const result = stmt.run(userId, htmlPreview, width, height, dpr, fullPage ? 1 : 0, fileSize)
+  const result = stmt.run(userId, htmlPreview, html, width, height, dpr, fullPage ? 1 : 0, fileSize)
   return result.lastInsertRowid as number
 }
 
 export interface ConversionInfo {
   id: number
   html_preview: string | null
+  html_content: string | null
   width: number
   height: number | null
   dpr: number
@@ -229,7 +238,7 @@ export interface ConversionInfo {
 export function listConversions(userId: number, limit = 50, offset = 0): ConversionInfo[] {
   const db = getDb()
   const stmt = db.prepare(`
-    SELECT id, html_preview, width, height, dpr, full_page, file_size, created_at
+    SELECT id, html_preview, html_content, width, height, dpr, full_page, file_size, created_at
     FROM conversions
     WHERE user_id = ?
     ORDER BY created_at DESC
