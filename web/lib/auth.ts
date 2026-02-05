@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
-import { getDb, User, addTokenToBlacklist, isTokenBlacklisted, cleanupExpiredTokens } from './db'
+import { getDb, User, addTokenToBlacklist, isTokenBlacklisted, cleanupExpiredTokens, getSetting, setSetting } from './db'
 import argon2 from 'argon2'
 import crypto from 'crypto'
 
@@ -8,29 +8,38 @@ const KEY_PREFIX = 'h2p_'
 
 // Lazy initialization of JWT secret to avoid build-time errors
 let _jwtSecret: Uint8Array | null = null
-let _secretValidated = false
+let _secretInitialized = false
 
 function getJwtSecret(): Uint8Array {
-  if (_jwtSecret && _secretValidated) {
+  if (_jwtSecret && _secretInitialized) {
     return _jwtSecret
   }
 
-  const jwtSecretString = process.env.JWT_SECRET
+  // Priority: environment variable > database > auto-generate
+  let jwtSecretString = process.env.JWT_SECRET
 
-  // Validate JWT_SECRET in production (only at runtime, not build time)
-  if (process.env.NODE_ENV === 'production') {
-    if (!jwtSecretString) {
-      throw new Error('JWT_SECRET environment variable must be set in production')
-    }
-    if (jwtSecretString.length < 32) {
-      throw new Error('JWT_SECRET must be at least 32 characters long')
+  if (!jwtSecretString) {
+    // Try to get from database
+    try {
+      jwtSecretString = getSetting('jwt_secret') || undefined
+    } catch {
+      // Database not ready yet, will generate new secret
     }
   }
 
-  _jwtSecret = new TextEncoder().encode(
-    jwtSecretString || 'default-dev-secret-change-me-in-production'
-  )
-  _secretValidated = true
+  if (!jwtSecretString) {
+    // Auto-generate and persist to database
+    jwtSecretString = crypto.randomBytes(32).toString('hex')
+    try {
+      setSetting('jwt_secret', jwtSecretString)
+      console.log('Generated and saved new JWT_SECRET to database')
+    } catch (e) {
+      console.warn('Could not persist JWT_SECRET to database:', e)
+    }
+  }
+
+  _jwtSecret = new TextEncoder().encode(jwtSecretString)
+  _secretInitialized = true
 
   return _jwtSecret
 }
