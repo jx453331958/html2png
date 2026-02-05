@@ -154,6 +154,36 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
     await navigator.clipboard.writeText(code)
   }
 
+  // Generate date options for custom picker
+  const generateDateOptions = () => {
+    const options = [
+      { value: '', label: dict.admin.noExpiry },
+    ]
+    const now = new Date()
+
+    // 1 hour
+    const hour1 = new Date(now.getTime() + 60 * 60 * 1000)
+    options.push({ value: hour1.toISOString(), label: '1 ' + (dict.admin.hour || 'hour') })
+
+    // 1 day
+    const day1 = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    options.push({ value: day1.toISOString(), label: '1 ' + (dict.admin.day || 'day') })
+
+    // 7 days
+    const days7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+    options.push({ value: days7.toISOString(), label: '7 ' + (dict.admin.days || 'days') })
+
+    // 30 days
+    const days30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+    options.push({ value: days30.toISOString(), label: '30 ' + (dict.admin.days || 'days') })
+
+    // 90 days
+    const days90 = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000)
+    options.push({ value: days90.toISOString(), label: '90 ' + (dict.admin.days || 'days') })
+
+    return options
+  }
+
   const formatDate = (dateStr: string) => {
     // SQLite stores UTC time without timezone indicator, append 'Z' to parse as UTC
     const utcDateStr = dateStr.endsWith('Z') ? dateStr : dateStr.replace(' ', 'T') + 'Z'
@@ -292,12 +322,17 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
               min="1"
               placeholder={dict.admin.maxUses}
             />
-            <input
-              type="datetime-local"
+            <select
               value={newInvitationExpiry}
               onChange={(e) => setNewInvitationExpiry(e.target.value)}
-              className="cyber-input"
-            />
+              className="cyber-input cyber-select"
+            >
+              {generateDateOptions().map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
             <button
               onClick={createInvitation}
               disabled={creatingInvitation}
