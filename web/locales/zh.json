@@ -64,7 +64,8 @@
     "clickToEdit": "点击加载并编辑",
     "delete": "删除",
     "viewMore": "加载更多",
-    "confirmDeleteHistory": "确定要删除这条记录吗？"
+    "confirmDeleteHistory": "确定要删除这条记录吗？",
+    "widthRequired": "宽度必须在 100 到 4096 像素之间"
   },
   "dashboard": {
     "title": "控制台",

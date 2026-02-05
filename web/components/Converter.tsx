@@ -47,7 +47,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [html, setHtml] = useState(defaultHtml)
-  const [width, setWidth] = useState(1200)
+  const [width, setWidth] = useState<number | string>(1200)
   const [height, setHeight] = useState('')
   const [dpr, setDpr] = useState(1)
   const [fullPage, setFullPage] = useState(false)
@@ -59,8 +59,8 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
   const [conversions, setConversions] = useState<Conversion[]>([])
   const [conversionsTotal, setConversionsTotal] = useState(0)
   const [conversionsLoading, setConversionsLoading] = useState(false)
-  const [conversionsOffset, setConversionsOffset] = useState(0)
-  const conversionsLimit = 5
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 5
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -68,18 +68,15 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
     }
   }, [isLoggedIn])
 
-  const loadConversions = async (offset = 0) => {
+  const loadConversions = async (page = 1) => {
     setConversionsLoading(true)
     try {
-      const response = await fetch(`/api/conversions?limit=${conversionsLimit}&offset=${offset}`)
+      const offset = (page - 1) * pageSize
+      const response = await fetch(`/api/conversions?limit=${pageSize}&offset=${offset}`)
       const data = await response.json()
-      if (offset === 0) {
-        setConversions(data.conversions || [])
-      } else {
-        setConversions(prev => [...prev, ...(data.conversions || [])])
-      }
+      setConversions(data.conversions || [])
       setConversionsTotal(data.total || 0)
-      setConversionsOffset(offset)
+      setCurrentPage(page)
     } catch {
       console.error('Failed to load conversions')
     } finally {
@@ -87,9 +84,18 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
     }
   }
 
+  const totalPages = Math.ceil(conversionsTotal / pageSize)
+
   const handleConvert = async () => {
     if (!isLoggedIn) {
       router.push('/login')
+      return
+    }
+
+    // Validate width
+    const widthNum = typeof width === 'number' ? width : parseInt(width as string)
+    if (!widthNum || widthNum < 100 || widthNum > 4096) {
+      setError(dict.converter.widthRequired)
       return
     }
 
@@ -103,7 +109,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           html,
-          width,
+          width: widthNum,
           height: height ? parseInt(height) : undefined,
           dpr,
           fullPage,
@@ -120,7 +126,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
       setPreviewUrl(URL.createObjectURL(blob))
 
       // Reload history after successful conversion
-      loadConversions(0)
+      loadConversions(1)
     } catch {
       setError('Conversion failed')
     } finally {
@@ -186,8 +192,11 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
     if (!confirm(dict.converter.confirmDeleteHistory)) return
     try {
       await fetch(`/api/conversions/${id}`, { method: 'DELETE' })
-      setConversions(prev => prev.filter(c => c.id !== id))
-      setConversionsTotal(prev => prev - 1)
+      // Reload current page, or go to previous page if current page would be empty
+      const newTotal = conversionsTotal - 1
+      const newTotalPages = Math.ceil(newTotal / pageSize)
+      const targetPage = currentPage > newTotalPages ? Math.max(1, newTotalPages) : currentPage
+      loadConversions(targetPage)
     } catch {
       console.error('Failed to delete conversion')
     }
@@ -259,7 +268,7 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
               <input
                 type="number"
                 value={width}
-                onChange={(e) => setWidth(parseInt(e.target.value) || 1200)}
+                onChange={(e) => setWidth(e.target.value === '' ? '' : parseInt(e.target.value) || '')}
                 className="cyber-input"
                 min={100}
                 max={4096}
@@ -422,18 +431,59 @@ export default function Converter({ dict, isLoggedIn }: ConverterProps) {
               </div>
             ))}
 
-            {conversions.length < conversionsTotal && (
-              <div className="p-4 md:p-5 text-center">
+            {totalPages > 1 && (
+              <div className="p-4 md:p-5 flex items-center justify-center gap-2">
                 <button
-                  onClick={() => loadConversions(conversionsOffset + conversionsLimit)}
-                  disabled={conversionsLoading}
-                  className="cyber-btn !py-2 !px-6 !text-sm"
+                  onClick={() => loadConversions(currentPage - 1)}
+                  disabled={conversionsLoading || currentPage <= 1}
+                  className="cyber-btn !py-2 !px-3 !text-sm disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  {conversionsLoading ? (
-                    <span className="cyber-spinner" />
-                  ) : (
-                    dict.converter.viewMore
-                  )}
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <div className="flex items-center gap-1">
+                  {(() => {
+                    const pages: (number | string)[] = []
+                    if (totalPages <= 7) {
+                      for (let i = 1; i <= totalPages; i++) pages.push(i)
+                    } else {
+                      pages.push(1)
+                      if (currentPage > 3) pages.push('...')
+                      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                        pages.push(i)
+                      }
+                      if (currentPage < totalPages - 2) pages.push('...')
+                      pages.push(totalPages)
+                    }
+                    return pages.map((page, idx) =>
+                      typeof page === 'string' ? (
+                        <span key={`ellipsis-${idx}`} className="px-2 text-zinc-500">...</span>
+                      ) : (
+                        <button
+                          key={page}
+                          onClick={() => loadConversions(page)}
+                          disabled={conversionsLoading}
+                          className={`min-w-[32px] h-8 text-sm rounded transition-all ${
+                            page === currentPage
+                              ? 'bg-cyber-cyan text-black font-medium'
+                              : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    )
+                  })()}
+                </div>
+                <button
+                  onClick={() => loadConversions(currentPage + 1)}
+                  disabled={conversionsLoading || currentPage >= totalPages}
+                  className="cyber-btn !py-2 !px-3 !text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               </div>
             )}

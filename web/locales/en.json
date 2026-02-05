@@ -64,7 +64,8 @@
     "clickToEdit": "Click to load and edit",
     "delete": "Delete",
     "viewMore": "Load More",
-    "confirmDeleteHistory": "Are you sure you want to delete this record?"
+    "confirmDeleteHistory": "Are you sure you want to delete this record?",
+    "widthRequired": "Width must be between 100 and 4096 pixels"
   },
   "dashboard": {
     "title": "Dashboard",
