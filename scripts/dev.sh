@@ -36,11 +36,7 @@ cd "$PROJECT_ROOT"
 if [ ! -f .env ]; then
     echo -e "${YELLOW}Creating .env from .env.example...${NC}"
     cp .env.example .env
-    # Generate a random JWT secret
-    JWT_SECRET=$(openssl rand -hex 32)
-    sed -i.bak "s/your-super-secret-jwt-key-change-in-production/$JWT_SECRET/" .env
-    rm -f .env.bak
-    echo -e "${GREEN}.env created with random JWT secret${NC}"
+    echo -e "${GREEN}.env created${NC}"
 fi
 
 # Create data directory

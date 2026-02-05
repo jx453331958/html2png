@@ -13,7 +13,6 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
-      - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
       - DATABASE_PATH=/app/data/html2png.db
       - RATE_LIMIT_MAX=100
       - RATE_LIMIT_WINDOW_MS=60000
