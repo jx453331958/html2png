@@ -282,17 +282,14 @@ export default function AdminClient({ dict, initialSettings, initialUsers, initi
               className="cyber-input"
               placeholder={dict.admin.invitationNamePlaceholder}
             />
-            <div>
-              <input
-                type="number"
-                value={newInvitationMaxUses}
-                onChange={(e) => setNewInvitationMaxUses(parseInt(e.target.value) || 0)}
-                className="cyber-input"
-                min="0"
-                placeholder={dict.admin.maxUses}
-              />
-              <p className="text-xs text-zinc-500 mt-1">{dict.admin.maxUsesHint}</p>
-            </div>
+            <input
+              type="number"
+              value={newInvitationMaxUses}
+              onChange={(e) => setNewInvitationMaxUses(Math.max(1, parseInt(e.target.value) || 1))}
+              className="cyber-input"
+              min="1"
+              placeholder={dict.admin.maxUses}
+            />
             <input
               type="datetime-local"
               value={newInvitationExpiry}

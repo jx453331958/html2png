@@ -104,7 +104,6 @@
     "invitationName": "Name (optional)",
     "invitationNamePlaceholder": "e.g. For John",
     "maxUses": "Max Uses",
-    "maxUsesHint": "0 = unlimited",
     "expiresAt": "Expires At",
     "noExpiry": "No expiry",
     "noInvitations": "No invitation codes yet",

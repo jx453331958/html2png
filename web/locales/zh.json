@@ -104,7 +104,6 @@
     "invitationName": "名称（可选）",
     "invitationNamePlaceholder": "例如：给张三",
     "maxUses": "最大使用次数",
-    "maxUsesHint": "0 = 无限制",
     "expiresAt": "过期时间",
     "noExpiry": "永不过期",
     "noInvitations": "暂无邀请码",
