@@ -1,14 +1,10 @@
-version: '3.8'
-
 services:
   html2png:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    image: ghcr.io/jx453331958/html2png:latest
     container_name: html2png
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -16,7 +12,6 @@ services:
       - DATABASE_PATH=/app/data/html2png.db
       - RATE_LIMIT_MAX=100
       - RATE_LIMIT_WINDOW_MS=60000
-      # Admin account - set these to create the initial admin user
       - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-change-this-password}
     volumes:
