@@ -1,5 +1,6 @@
 # Multi-stage build for HTML to PNG converter (Next.js)
 # Use Playwright image as base for all stages to ensure consistent Node version
+# Built via GitHub Actions CI
 
 # Stage 1: Dependencies
 FROM mcr.microsoft.com/playwright:v1.58.1-jammy AS deps
