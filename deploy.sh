@@ -27,15 +27,8 @@ check_docker() {
 
 init_env() {
     if [ ! -f "$COMPOSE_DIR/.env" ]; then
-        print_info "Creating .env file..."
-        cat > "$COMPOSE_DIR/.env" << 'ENVEOF'
-# Admin account credentials
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=change-this-password
-
-# Server port
-PORT=3000
-ENVEOF
+        print_info "Creating .env from .env.example..."
+        cp "$COMPOSE_DIR/.env.example" "$COMPOSE_DIR/.env"
         print_warn "Please edit docker/.env to set your admin credentials:"
         print_warn "  - ADMIN_EMAIL: Your admin email"
         print_warn "  - ADMIN_PASSWORD: A secure password (min 8 chars)"
