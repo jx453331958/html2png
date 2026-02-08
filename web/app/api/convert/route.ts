@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     return new NextResponse(new Uint8Array(png), {
       headers: {
         'Content-Type': 'image/png',
-        'Content-Disposition': 'attachment; filename="screenshot.png"',
+        'Content-Disposition': `attachment; filename="screenshot-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.png"`,
       },
     })
   } catch (error) {
