@@ -47,7 +47,30 @@ The update script will:
 - Pull latest changes and rebuild Docker container
 - Preserve your existing configuration
 
-### Manual Docker Deployment
+### Docker Image (Pre-built)
+
+Pre-built multi-platform images (amd64/arm64) are available on GitHub Container Registry, automatically built via GitHub Actions on every push to main.
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/jx453331958/html2png:latest
+
+# Run directly
+docker run -d \
+  --name html2png \
+  -p 3000:3000 \
+  -e ADMIN_EMAIL=admin@example.com \
+  -e ADMIN_PASSWORD=your-secure-password \
+  -v html2png-data:/app/data \
+  ghcr.io/jx453331958/html2png:latest
+```
+
+Available image tags:
+- `latest` — latest build from main branch
+- `<commit-sha>` — specific commit (e.g. `ghcr.io/jx453331958/html2png:abc1234`)
+- `<version>` — semantic version when tagged (e.g. `ghcr.io/jx453331958/html2png:1.0.0`)
+
+### Docker Compose Deployment
 
 ```bash
 # Clone the repository

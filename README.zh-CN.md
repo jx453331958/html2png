@@ -47,7 +47,30 @@ cd html2png
 - 拉取最新代码并重新构建 Docker 容器
 - 保留现有配置不变
 
-### 手动 Docker 部署
+### Docker 镜像（预构建）
+
+预构建的多平台镜像（amd64/arm64）托管在 GitHub Container Registry，每次推送到 main 分支时通过 GitHub Actions 自动构建。
+
+```bash
+# 拉取最新镜像
+docker pull ghcr.io/jx453331958/html2png:latest
+
+# 直接运行
+docker run -d \
+  --name html2png \
+  -p 3000:3000 \
+  -e ADMIN_EMAIL=admin@example.com \
+  -e ADMIN_PASSWORD=你的安全密码 \
+  -v html2png-data:/app/data \
+  ghcr.io/jx453331958/html2png:latest
+```
+
+可用的镜像标签：
+- `latest` — main 分支最新构建
+- `<commit-sha>` — 指定提交（如 `ghcr.io/jx453331958/html2png:abc1234`）
+- `<version>` — 语义化版本号（如 `ghcr.io/jx453331958/html2png:1.0.0`）
+
+### Docker Compose 部署
 
 ```bash
 # 克隆仓库
